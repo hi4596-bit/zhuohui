@@ -55,6 +55,8 @@ GitHub 的 Pages 发布来源只有仓库管理员能改，脚本无法代劳：
 3. 保存后会重新触发一次部署，约 1-2 分钟后生效
 
 > **为什么要改**：如果保持 "Deploy from a branch"（`main` / `/ (root)`），GitHub 会用 Jekyll 把仓库根目录当网站发布，结果是 README 被渲染成首页、`data/*.json` 和图片返回 404。改成 **GitHub Actions** 后，网站根目录就是 `zhuohui-floral-site/`，访问地址 `https://hi4596-bit.github.io/zhuohui/` 才是真实前台。
+>
+> ⚠️ **在改成 GitHub Actions 之前，`admin-tools/admin.html` 会被公开访问**（当前已验证 `https://hi4596-bit.github.io/zhuohui/admin-tools/admin.html` 返回 200）。该页面只是界面外壳、不含数据，但后台源文件不应出现在公网。切换为 GitHub Actions 后，只有 `zhuohui-floral-site/` 会被发布，这个问题自动消失。
 
 ### 日常发布流程
 
