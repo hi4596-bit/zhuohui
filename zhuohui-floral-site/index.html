@@ -24,6 +24,110 @@ main{overflow:hidden}.wrap{width:min(1440px,100%);margin:0 auto;padding:0 28px}.
 @media(max-width:850px){.announcement{justify-content:center;text-align:center}.announcement .announce-side{display:none}.nav{padding:13px 20px;gap:12px}.brand{min-width:0;margin-right:auto}.brand strong{font-size:21px}.mobile-toggle{display:block}.nav>.btn{display:none}.navlinks{display:none;position:absolute;top:100%;left:0;right:0;background:var(--paper);padding:14px 22px 22px;border-bottom:1px solid var(--line);flex-direction:column;align-items:stretch;gap:5px}.navlinks.open{display:flex}.navlinks>a{padding:9px 0}.navlinks .nav-item{display:block;width:100%}.navlinks .nav-parent{display:flex;justify-content:space-between}.navlinks .subnav{display:grid;position:static;min-width:0;padding:3px 0 7px 12px;border:0;box-shadow:none;background:transparent}.navlinks .subnav:before{display:none}.navlinks .subnav a{padding:7px 9px;white-space:normal}.navlinks .nav-item:hover .nav-caret{transform:none}.wrap{padding:0 20px}.feature{margin-top:18px}.feature-banner{height:clamp(175px,33vw,250px)}.feature-caption h1,.feature-caption h2{font-size:23px}.product-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:22px 12px}.color-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:18px 10px}.color-card .color-photo{aspect-ratio:.9}.color-card h3{font-size:17px;min-height:34px}.area-grid{gap:12px}.area-card h3{font-size:19px}.category-columns{gap:14px}.mini-category h2{font-size:21px}.footer-grid{grid-template-columns:1fr 1fr;gap:25px}.footer-grid>div:first-child{grid-column:1/-1}}
 @media(max-width:560px){.wrap{padding:0 15px}.announcement{font-size:8px;letter-spacing:.06em}.announcement a{font-size:9px}.feature{margin-top:14px}.feature-banner{height:175px}.feature-caption{padding:12px 10px 13px}.feature-caption h1,.feature-caption h2{font-size:22px;margin-bottom:9px}.feature-links{gap:5px 13px}.feature-links a{font-size:9px}.section{margin:24px auto 34px}.section-head{margin:20px 0 16px}.section-head h2{font-size:29px}.product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 11px}.product-title{font-size:11px;min-height:30px}.product-desc{font-size:9px}.product-bottom span{font-size:9px}.quote-icon{width:27px;height:27px}.show-row{gap:12px;margin-top:21px}.show-more{padding:9px 17px}.area-grid{grid-template-columns:1fr;gap:24px}.area-card>a:first-child{aspect-ratio:1.5}.area-card h3{font-size:22px}.area-card p{font-size:11px}.color-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 12px}.color-card .color-photo{aspect-ratio:.9}.color-card h3{font-size:20px;min-height:0}.color-card p{font-size:10px}.category-columns{grid-template-columns:1fr;gap:34px}.mini-category h2{font-size:26px}.mini-products .product-title{font-size:12px}.footer-grid{grid-template-columns:1fr 1fr;gap:22px 16px}.footer-grid>div:first-child{grid-column:1/-1}.footer-bottom{flex-direction:column;gap:7px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.modal{padding:22px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+
+/* Restored brand homepage: full-viewport carousel, separate from product landing page */
+.home-landing{background:#fff}
+.home-hero{height:calc(100svh - 100px);min-height:620px;max-height:980px;position:relative;overflow:hidden;background:#28382d;color:#fff}
+.hero-slides,.hero-slide{position:absolute;inset:0}
+.hero-slide{opacity:0;visibility:hidden;transition:opacity .8s ease;isolation:isolate}
+.hero-slide.active{opacity:1;visibility:visible;z-index:1}
+.hero-slide>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 52%;z-index:-2}
+.hero-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(18,29,21,.72) 0%,rgba(18,29,21,.43) 43%,rgba(18,29,21,.05) 100%);z-index:-1}
+.hero-copy{position:absolute;left:max(7.2vw,calc((100vw - 1280px)/2));top:50%;transform:translateY(-50%);max-width:590px;padding:30px 28px 30px 0}
+.eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;margin:0 0 18px;color:#89937f}
+.hero-copy .eyebrow{color:#e3e5d8}
+.hero-copy h1,.hero-copy h2{font:clamp(46px,6.2vw,88px)/.99 var(--serif);font-weight:400;letter-spacing:-.045em;margin:0 0 24px;color:#fff}
+.hero-copy h1 em,.hero-copy h2 em,.home-cta h2 em{font-weight:400}
+.hero-copy>p:not(.eyebrow){font-size:15px;line-height:1.8;max-width:420px;color:rgba(255,255,255,.88);margin:0}
+.hero-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:30px}
+.hero-actions .btn{padding:15px 20px;border-color:#fff;color:#fff}
+.hero-actions .btn.dark{background:#f8f7f2;color:#26382d;border-color:#f8f7f2}
+.hero-actions .btn.dark:hover{background:#e6e9df}
+.hero-actions .btn.hero-quote:hover{background:#fff;color:#28382d}
+.hero-controls{position:absolute;z-index:3;left:max(7.2vw,calc((100vw - 1280px)/2));right:max(7.2vw,calc((100vw - 1280px)/2));bottom:35px;display:flex;justify-content:space-between;align-items:center}
+.hero-pagination{display:flex;gap:8px;align-items:center}
+.hero-dot{width:34px;height:3px;border:0;padding:0;background:rgba(255,255,255,.45);transition:width .25s,background .25s}
+.hero-dot.active{width:58px;background:#fff}
+.hero-arrows{display:flex;align-items:center;gap:16px}
+.hero-arrows button{width:38px;height:38px;border:1px solid rgba(255,255,255,.7);background:transparent;color:#fff;border-radius:50%;font-size:17px}
+.hero-arrows button:hover{background:#fff;color:#28382d}
+.hero-count{font-size:10px;letter-spacing:.12em;color:rgba(255,255,255,.75)}
+.hero-count b{font-size:13px;color:#fff}
+.hero-scroll-note{position:absolute;z-index:3;right:28px;top:50%;writing-mode:vertical-rl;letter-spacing:.16em;font-size:9px;color:rgba(255,255,255,.75);display:flex;gap:14px;align-items:center}
+.home-intro{padding-top:88px;padding-bottom:85px;display:grid;grid-template-columns:1fr 1fr;gap:9%;align-items:end}
+.home-intro h2,.section-heading h2,.home-cta h2{font:clamp(32px,3.5vw,48px)/1.08 var(--serif);font-weight:400;letter-spacing:-.025em;margin:0}
+.home-intro>p{max-width:510px;margin:0;color:#6b7268;font-size:14px;line-height:1.9}
+.home-featured{padding-bottom:92px}
+.section-heading{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:28px}
+.section-heading .eyebrow{margin-bottom:12px}
+.text-link{font-size:11px;border-bottom:1px solid #aab0a4;padding-bottom:5px;white-space:nowrap}
+.home-category-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.home-category{display:block;min-width:0}
+.home-category img{width:100%;aspect-ratio:1.18;object-fit:cover;transition:transform .5s}
+.home-category:hover img{transform:scale(1.025)}
+.home-category>span{display:block;margin-top:17px;color:#7c8378;font-size:9px;letter-spacing:.15em}
+.home-category h3{font:28px/1.15 var(--serif);font-weight:400;margin:7px 0 11px}
+.home-category>b{font-size:10px;font-weight:400;border-bottom:1px solid #aab0a4;padding-bottom:4px}
+.home-color-band{background:#f4f3ee;padding:76px 0 80px}
+.section-desc{font-size:12px;color:#747a70;margin:10px 0 0}
+.home-color-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:14px}
+.home-color-grid>a{min-width:0;text-align:center}
+.home-color-grid img{width:100%;aspect-ratio:3/4;object-fit:cover;transition:filter .25s}
+.home-color-grid>a:hover img{filter:brightness(.94)}
+.swatches{display:flex;justify-content:center;gap:0;margin:12px auto 9px}
+.swatches i{display:block;width:17px;height:17px;border-radius:50%;border:2px solid #f4f3ee;margin-left:-3px;box-shadow:0 0 0 1px rgba(50,50,40,.08)}
+.home-color-grid b{display:block;font:15px/1.2 var(--serif);font-weight:400}
+.home-cta{padding-top:94px;padding-bottom:100px;display:flex;align-items:end;justify-content:space-between;gap:35px}
+.home-cta h2{font-size:clamp(38px,4.8vw,62px)}
+.home-cta>div:first-child>p:last-child{max-width:430px;font-size:13px;line-height:1.8;color:#6b7268;margin:18px 0 0}
+.home-cta-actions{display:flex;flex-direction:column;align-items:flex-start;gap:18px}
+.collection-directory-link{display:flex;justify-content:flex-end;align-items:center;gap:12px;padding:12px 0 20px;font-size:11px;color:var(--muted)}
+.collection-directory-link a{border-bottom:1px solid var(--line);padding-bottom:3px;color:var(--ink)}
+@media(max-width:800px){
+ .home-hero{height:calc(100svh - 92px);min-height:600px;max-height:none}
+ .hero-copy{left:7vw;right:7vw;top:48%;padding:0;max-width:560px}
+ .hero-copy h1,.hero-copy h2{font-size:clamp(43px,11vw,70px)}
+ .hero-copy>p:not(.eyebrow){font-size:13px;max-width:360px}
+ .hero-controls{left:7vw;right:7vw;bottom:25px}
+ .hero-scroll-note{display:none}
+ .home-intro{padding-top:58px;padding-bottom:55px;grid-template-columns:1fr;gap:20px}
+ .home-featured{padding-bottom:58px}
+ .section-heading{align-items:start}
+ .home-category-grid{gap:12px}
+ .home-category img{aspect-ratio:.8}
+ .home-category h3{font-size:21px}
+ .home-color-band{padding:55px 0}
+ .home-color-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:20px 12px}
+ .home-cta{padding-top:60px;padding-bottom:65px;align-items:start;flex-direction:column}
+ .collection-directory-link{justify-content:flex-start;flex-wrap:wrap}
+}
+@media(max-width:480px){
+ .home-hero{min-height:590px}
+ .hero-shade{background:linear-gradient(90deg,rgba(18,29,21,.67),rgba(18,29,21,.2))}
+ .hero-copy{top:46%}
+ .hero-copy h1,.hero-copy h2{font-size:44px}
+ .hero-actions{gap:8px;margin-top:22px}
+ .hero-actions .btn{padding:12px 13px;font-size:10px}
+ .hero-arrows{gap:8px}
+ .hero-arrows button{width:34px;height:34px}
+ .home-category-grid{grid-template-columns:1fr 1fr}
+ .home-category:last-child{display:none}
+ .home-category h3{font-size:20px}
+ .home-color-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .section-heading{flex-direction:column;align-items:start}
+}
+@media(prefers-reduced-motion:reduce){.hero-slide,.home-category img{transition:none}.hero-slide.active{opacity:1}}
+
+
+.home-mini-products{padding-top:72px;padding-bottom:82px}
+.home-mini-product-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+.home-mini-product{min-width:0}
+.home-mini-product> a:first-child img,.home-mini-product>img{width:100%;aspect-ratio:1/1;object-fit:cover}
+.home-mini-title{display:block;font:19px/1.25 var(--serif);margin-top:12px}
+.home-mini-product p{font-size:11px;color:#737a70;margin:6px 0 10px}
+.home-mini-product .text-link{background:none;border:0;border-bottom:1px solid #aab0a4;padding:0 0 4px;color:var(--ink)}
+@media(max-width:800px){.home-mini-products{padding-top:54px;padding-bottom:58px}.home-mini-product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 14px}}
+
 </style>
 </head>
 <body id="top">
@@ -32,89 +136,104 @@ main{overflow:hidden}.wrap{width:min(1440px,100%);margin:0 auto;padding:0 28px}.
 <a class="brand" href="index.html" aria-label="Zhuohui Floral home"><strong>ZHUOHUI</strong><span>F L O R A L</span></a>
 <button class="mobile-toggle" aria-label="Open navigation" aria-expanded="false">☰</button>
 <div class="navlinks">
-<div class="nav-item"><a class="nav-parent" href="products.html">Products <span class="nav-caret">⌄</span></a><div class="subnav"><a href="products.html">All collections</a><a href="flower-walls.html">Flower walls</a><a href="custom.html">Flower arches</a><a href="inspiration.html">Centerpieces &amp; runners</a><a href="products.html">Artificial plants</a></div></div>
+<div class="nav-item"><a class="nav-parent" href="products.html">Products <span class="nav-caret">⌄</span></a><div class="subnav"><a href="collections.html">All collections</a><a href="flower-walls.html">Flower walls</a><a href="custom.html">Flower arches</a><a href="inspiration.html">Centerpieces &amp; runners</a><a href="products.html">Artificial plants</a></div></div>
 <div class="nav-item"><a class="nav-parent" href="shop-by-color.html">Shop by Color <span class="nav-caret">⌄</span></a><div class="subnav"><a href="shop-by-color.html?color=white"><i class="menu-swatch" style="background:#e8ded0"></i>Cloud Dancer White</a><a href="shop-by-color.html?color=blush"><i class="menu-swatch" style="background:#e7bfc2"></i>Blush</a><a href="shop-by-color.html?color=sage"><i class="menu-swatch" style="background:#96a67c"></i>Sage Green</a><a href="shop-by-color.html?color=berry"><i class="menu-swatch" style="background:#922d30"></i>Berry &amp; Burgundy</a><a href="shop-by-color.html?color=terri"><i class="menu-swatch" style="background:#c2764c"></i>Terri</a><a href="shop-by-color.html?color=blue"><i class="menu-swatch" style="background:#7da6c6"></i>French Blue &amp; Purple</a><a href="shop-by-color.html?color=mix"><i class="menu-swatch menu-mix"></i>Mix</a></div></div>
 <a href="inspiration.html">Inspiration</a><a href="custom.html">Custom Florals</a><a href="about.html">About Us</a>
 </div><button class="btn dark" data-quote>Get a quote <span>↗</span></button>
 </nav></header>
-<main>
-<div class="wrap">
-<!-- Flower walls -->
-<section class="feature" id="flower-walls">
-<a class="feature-banner" href="flower-walls.html" aria-label="Explore flower walls"><img src="assets/img-13-98ad5d67a08a.webp" alt="White artificial flower wall in an elegant outdoor wedding setting" fetchpriority="high"></a>
-<div class="feature-caption"><h1>Flower Walls</h1><div class="feature-links"><a href="shop-by-color.html?color=white">Cloud Dancer White</a><a href="shop-by-color.html?color=blush">Blush</a><a href="shop-by-color.html?color=sage">Sage Green</a><a href="shop-by-color.html?color=berry">Berry &amp; Burgundy</a><a href="shop-by-color.html?color=terri">Terri</a><a href="shop-by-color.html?color=blue">French Blue &amp; Purple</a></div></div>
-</section>
-<section class="section" aria-label="Featured flower walls">
-<div class="product-grid" id="wall-grid">
-<article class="product-card"><a class="product-photo" href="flower-walls.html"><img src="assets/img-01-06abd7b81a6a.webp" alt="Cloud white flower wall" loading="lazy"></a><h3 class="product-title">Cloud White Floral Wall</h3><p class="product-desc">Ivory roses · Elegant wedding backdrop</p><div class="product-bottom"><span>Wholesale quote</span><button class="quote-icon" data-product="Cloud White Floral Wall" aria-label="Enquire about Cloud White Floral Wall">♧</button></div></article>
-<article class="product-card"><a class="product-photo" href="flower-walls.html"><img src="assets/img-43-47a7e4c2e318.webp" alt="White silk rose flower wall" loading="lazy"></a><h3 class="product-title">Silk Rose White Wall</h3><p class="product-desc">Dense white blooms · Photo backdrop</p><div class="product-bottom"><span>Wholesale quote</span><button class="quote-icon" data-product="Silk Rose White Wall" aria-label="Enquire about Silk Rose White Wall">♧</button></div></article>
-<article class="product-card"><a class="product-photo" href="flower-walls.html"><img src="assets/img-37-364e1919d2eb.webp" alt="Berry red artificial rose wall" loading="lazy"></a><h3 class="product-title">Berry Red Rose Wall</h3><p class="product-desc">Rich red roses · Statement display</p><div class="product-bottom"><span>Wholesale quote</span><button class="quote-icon" data-product="Berry Red Rose Wall" aria-label="Enquire about Berry Red Rose Wall">♧</button></div></article>
-<article class="product-card"><a class="product-photo" href="flower-walls.html"><img src="assets/img-13-98ad5d67a08a.webp" alt="Garden flower wall for weddings" loading="lazy"></a><h3 class="product-title">Garden Wedding Flower Wall</h3><p class="product-desc">Outdoor-ready styling · Custom sizes</p><div class="product-bottom"><span>Custom options</span><button class="quote-icon" data-product="Garden Wedding Flower Wall" aria-label="Enquire about Garden Wedding Flower Wall">♧</button></div></article>
-<article class="product-card"><a class="product-photo" href="flower-walls.html"><img src="assets/img-35-62e39a4f2cce.webp" alt="Layered green foliage wall" loading="lazy"></a><h3 class="product-title">Sage Greenery Wall</h3><p class="product-desc">Natural layered foliage · Event styling</p><div class="product-bottom"><span>Wholesale quote</span><button class="quote-icon" data-product="Sage Greenery Wall" aria-label="Enquire about Sage Greenery Wall">♧</button></div></article>
-<article class="product-card"><a class="product-photo" href="flower-walls.html"><img src="assets/img-41-d3a7e99842ac.webp" alt="French blue artificial flower wall" loading="lazy"></a><h3 class="product-title">French Blue Floral Wall</h3><p class="product-desc">Blue blooms · Distinctive backdrop</p><div class="product-bottom"><span>Custom options</span><button class="quote-icon" data-product="French Blue Floral Wall" aria-label="Enquire about French Blue Floral Wall">♧</button></div></article>
-<article class="product-card extra-wall" hidden><a class="product-photo" href="flower-walls.html"><img src="assets/img-39-c22b8b192482.webp" alt="Mixed color artificial flower wall" loading="lazy"></a><h3 class="product-title">Mixed Color Floral Wall</h3><p class="product-desc">Bright mixed blooms · Event backdrop</p><div class="product-bottom"><span>Custom options</span><button class="quote-icon" data-product="Mixed Color Floral Wall">♧</button></div></article>
-<article class="product-card extra-wall" hidden><a class="product-photo" href="flower-walls.html"><img src="assets/img-33-8c9ac0b12e22.webp" alt="Red and green floral panel" loading="lazy"></a><h3 class="product-title">Seasonal Floral Panel</h3><p class="product-desc">Colorful accents · Custom combinations</p><div class="product-bottom"><span>Custom options</span><button class="quote-icon" data-product="Seasonal Floral Panel">♧</button></div></article>
-</div>
-<div class="show-row"><button class="show-more" data-show="wall">Show 6 more</button><a class="text-link" href="flower-walls.html">View all Flower Walls</a></div>
-</section>
-<!-- Flower arches -->
-<section class="feature" id="flower-arches">
-<a class="feature-banner" href="custom.html" aria-label="Explore flower arches"><img src="assets/img-21-a69b8a47539f.webp" alt="Elegant floral arch for a wedding ceremony" loading="lazy"></a>
-<div class="feature-caption"><h2>Flower Arches</h2><div class="feature-links"><a href="custom.html">Horn</a><a href="custom.html">Heart</a><a href="custom.html">Door</a><a href="custom.html">Moon</a><a href="custom.html">Round</a></div></div>
-</section>
-<section class="section" aria-label="Featured flower arches">
-<div class="product-grid" id="arch-grid">
-<article class="product-card"><a class="product-photo" href="custom.html"><img src="assets/img-03-93eb32687246.webp" alt="White and greenery wedding arch" loading="lazy"></a><h3 class="product-title">Sage White Luxury Arch</h3><p class="product-desc">White flowers &amp; greenery</p><div class="product-bottom"><span>Custom quote</span><button class="quote-icon" data-product="Sage White Luxury Arch">♧</button></div></article>
-<article class="product-card"><a class="product-photo" href="custom.html"><img src="assets/img-27-dd89d8ac5e80.webp" alt="Blush rose wedding arch" loading="lazy"></a><h3 class="product-title">Blush Garden Arch</h3><p class="product-desc">Romantic blush · Ceremony focal point</p><div class="product-bottom"><span>Custom quote</span><button class="quote-icon" data-product="Blush Garden Arch">♧</button></div></article>
-<article class="product-card"><a class="product-photo" href="custom.html"><img src="assets/img-21-a69b8a47539f.webp" alt="Full floral arch in a bright interior" loading="lazy"></a><h3 class="product-title">Lush Floral Arch</h3><p class="product-desc">Layered flowers · Made to order</p><div class="product-bottom"><span>Custom quote</span><button class="quote-icon" data-product="Lush Floral Arch">♧</button></div></article>
-<article class="product-card"><a class="product-photo" href="custom.html"><img src="assets/img-13-98ad5d67a08a.webp" alt="White floral ceremony installation" loading="lazy"></a><h3 class="product-title">Cloud White Ceremony Arch</h3><p class="product-desc">Soft white palette · Wedding styling</p><div class="product-bottom"><span>Custom quote</span><button class="quote-icon" data-product="Cloud White Ceremony Arch">♧</button></div></article>
-<article class="product-card"><a class="product-photo" href="custom.html"><img src="assets/img-37-364e1919d2eb.webp" alt="Deep red floral installation" loading="lazy"></a><h3 class="product-title">Berry Statement Arch</h3><p class="product-desc">Deep red flowers · Bold styling</p><div class="product-bottom"><span>Custom quote</span><button class="quote-icon" data-product="Berry Statement Arch">♧</button></div></article>
-<article class="product-card"><a class="product-photo" href="custom.html"><img src="assets/img-41-d3a7e99842ac.webp" alt="Blue floral ceremony installation" loading="lazy"></a><h3 class="product-title">French Blue Floral Arch</h3><p class="product-desc">Blue and ivory · Custom palette</p><div class="product-bottom"><span>Custom quote</span><button class="quote-icon" data-product="French Blue Floral Arch">♧</button></div></article>
-<article class="product-card extra-arch" hidden><a class="product-photo" href="custom.html"><img src="assets/img-05-c1ea90012f90.webp" alt="Blush table florals" loading="lazy"></a><h3 class="product-title">Blush Floral Installation</h3><p class="product-desc">Coordinated event florals</p><div class="product-bottom"><span>Custom quote</span><button class="quote-icon" data-product="Blush Floral Installation">♧</button></div></article>
-<article class="product-card extra-arch" hidden><a class="product-photo" href="custom.html"><img src="assets/img-29-c922c1aae6c7.webp" alt="Ivory wedding table floral arrangement" loading="lazy"></a><h3 class="product-title">Ivory Floral Installation</h3><p class="product-desc">Warm ivory palette · Made to order</p><div class="product-bottom"><span>Custom quote</span><button class="quote-icon" data-product="Ivory Floral Installation">♧</button></div></article>
-</div>
-<div class="show-row"><button class="show-more" data-show="arch">Show 6 more</button><a class="text-link" href="custom.html">View all Flower Arches</a></div>
-</section>
-<!-- Shop by area -->
-<section class="section" id="shop-by-area">
-<div class="section-head"><h2>Shop by Area</h2><p>Browse by where the flowers will go.</p></div>
-<div class="area-grid">
-<article class="area-card"><a href="inspiration.html"><img src="assets/img-13-98ad5d67a08a.webp" alt="Floral welcome backdrop for an event" loading="lazy"></a><h3>Welcome</h3><p>First impressions, guest books and arrival photos.</p><a class="text-link" href="inspiration.html">Shop this area</a></article>
-<article class="area-card"><a href="custom.html"><img src="assets/img-21-a69b8a47539f.webp" alt="Floral ceremony arch setting" loading="lazy"></a><h3>Ceremony</h3><p>Vows, aisle moments and the main floral frame.</p><a class="text-link" href="custom.html">Shop this area</a></article>
-<article class="area-card"><a href="inspiration.html"><img src="assets/img-29-c922c1aae6c7.webp" alt="Wedding reception table with florals" loading="lazy"></a><h3>Reception</h3><p>Dining, speeches and the room around the tables.</p><a class="text-link" href="inspiration.html">Shop this area</a></article>
-</div>
-</section>
-<!-- Shop by color -->
-<section class="section" id="shop-by-color">
-<div class="section-head"><h2>Shop by Color</h2><p>Start with a color palette.</p></div>
-<div class="color-grid">
-<a class="color-card" href="shop-by-color.html?color=white"><span class="color-photo"><img src="assets/img-29-c922c1aae6c7.webp" alt="Cloud Dancer White floral palette" loading="lazy"></span><h3>Cloud Dancer<br>White</h3><span class="swatches"><i style="background:#f0ede6"></i><i style="background:#e8ded0"></i><i style="background:#d4c5b1"></i><i style="background:#b7a58e"></i><i style="background:#866c54"></i></span><p>Pure, timeless and luminous</p></a>
-<a class="color-card" href="shop-by-color.html?color=blush"><span class="color-photo"><img src="assets/img-05-c1ea90012f90.webp" alt="Blush floral palette" loading="lazy"></span><h3>Blush</h3><span class="swatches"><i style="background:#f0d7d7"></i><i style="background:#e7bfc2"></i><i style="background:#d9a5aa"></i><i style="background:#c88990"></i><i style="background:#a96770"></i></span><p>Soft, romantic and delicate</p></a>
-<a class="color-card" href="shop-by-color.html?color=sage"><span class="color-photo"><img src="assets/img-35-62e39a4f2cce.webp" alt="Sage green floral palette" loading="lazy"></span><h3>Sage Green</h3><span class="swatches"><i style="background:#d9dfbd"></i><i style="background:#b8c49b"></i><i style="background:#96a67c"></i><i style="background:#6d7e4b"></i><i style="background:#424d20"></i></span><p>Fresh, natural and grounded</p></a>
-<a class="color-card" href="shop-by-color.html?color=berry"><span class="color-photo"><img src="assets/img-37-364e1919d2eb.webp" alt="Berry and burgundy floral palette" loading="lazy"></span><h3>Berry &amp;<br>Burgundy</h3><span class="swatches"><i style="background:#42102d"></i><i style="background:#671b28"></i><i style="background:#922d30"></i><i style="background:#c16a6d"></i><i style="background:#e8d6bf"></i></span><p>Rich, dramatic and romantic</p></a>
-<a class="color-card" href="shop-by-color.html?color=terri"><span class="color-photo"><img src="assets/img-47-2a0ad0b9b9a3.webp" alt="Terracotta floral palette" loading="lazy"></span><h3>Terri</h3><span class="swatches"><i style="background:#a94f2a"></i><i style="background:#c2764c"></i><i style="background:#d5a782"></i><i style="background:#e3d4bd"></i><i style="background:#5d5844"></i></span><p>Warm, earthy and understated</p></a>
-<a class="color-card" href="shop-by-color.html?color=blue"><span class="color-photo"><img src="assets/img-41-d3a7e99842ac.webp" alt="French blue and purple floral palette" loading="lazy"></span><h3>French Blue<br>&amp; Purple</h3><span class="swatches"><i style="background:#cfd4d5"></i><i style="background:#a9c3d9"></i><i style="background:#7da6c6"></i><i style="background:#8173a1"></i><i style="background:#382b50"></i></span><p>Cool, serene and refined</p></a>
-<a class="color-card" href="shop-by-color.html?color=mix"><span class="color-photo"><img src="assets/img-39-c22b8b192482.webp" alt="Mixed color floral palette" loading="lazy"></span><h3>Mix</h3><span class="swatches mix"></span><p>Bold, expressive and joyful</p></a>
-</div>
-</section>
-<!-- Lower category collections -->
-<section class="section" id="more-collections">
-<div class="category-columns">
-<section class="mini-category"><h2>Tabletop &amp; Centerpiece</h2><p>Finishing touches and smaller floral accents.</p><div class="mini-products">
-<article class="product-card"><a class="product-photo" href="inspiration.html"><img src="assets/img-29-c922c1aae6c7.webp" alt="Wedding tabletop flower centerpiece" loading="lazy"></a><h3 class="product-title">Ivory Table Centerpiece</h3><p class="product-desc">Soft ivory floral detail</p><div class="product-bottom"><span>Request quote</span><button class="quote-icon" data-product="Ivory Table Centerpiece">♧</button></div></article>
-<article class="product-card"><a class="product-photo" href="inspiration.html"><img src="assets/img-05-c1ea90012f90.webp" alt="Blush floral table runner" loading="lazy"></a><h3 class="product-title">Blush Floral Runner</h3><p class="product-desc">Romantic table styling</p><div class="product-bottom"><span>Request quote</span><button class="quote-icon" data-product="Blush Floral Runner">♧</button></div></article>
-</div><div class="mini-footer"><a class="text-link" href="inspiration.html">View all Tabletop &amp; Centerpiece</a></div></section>
-<section class="mini-category"><h2>Wreaths &amp; Floral Details</h2><p>Decorative accents for seasonal and quiet details.</p><div class="mini-products">
-<article class="product-card"><a class="product-photo" href="products.html"><img src="assets/img-07-4e16fdd93bc6.webp" alt="Decorative mixed floral arrangement" loading="lazy"></a><h3 class="product-title">Mixed Floral Detail</h3><p class="product-desc">Colorful decorative florals</p><div class="product-bottom"><span>Request quote</span><button class="quote-icon" data-product="Mixed Floral Detail">♧</button></div></article>
-<article class="product-card"><a class="product-photo" href="products.html"><img src="assets/img-33-8c9ac0b12e22.webp" alt="Seasonal red and green floral decoration" loading="lazy"></a><h3 class="product-title">Seasonal Green &amp; Berry</h3><p class="product-desc">Seasonal color accents</p><div class="product-bottom"><span>Request quote</span><button class="quote-icon" data-product="Seasonal Green & Berry">♧</button></div></article>
-</div><div class="mini-footer"><a class="text-link" href="products.html">View all Wreaths &amp; Details</a></div></section>
-<section class="mini-category"><h2>Artificial Plants</h2><p>Added greenery, height and softer edges.</p><div class="mini-products">
-<article class="product-card"><a class="product-photo" href="products.html"><img src="assets/img-47-2a0ad0b9b9a3.webp" alt="Artificial flowering plant arrangement" loading="lazy"></a><h3 class="product-title">Potted Floral Arrangement</h3><p class="product-desc">Neutral interior styling</p><div class="product-bottom"><span>Request quote</span><button class="quote-icon" data-product="Potted Floral Arrangement">♧</button></div></article>
-<article class="product-card"><a class="product-photo" href="products.html"><img src="assets/img-25-0707b10d38c8.webp" alt="Artificial potted plants and flowers" loading="lazy"></a><h3 class="product-title">Greenery &amp; Floral Mix</h3><p class="product-desc">Mixed greenery accents</p><div class="product-bottom"><span>Request quote</span><button class="quote-icon" data-product="Greenery & Floral Mix">♧</button></div></article>
-</div><div class="mini-footer"><a class="text-link" href="products.html">View all Artificial Plants</a></div></section>
-</div></section>
-</div>
+
+<main class="home-landing">
+  <section class="home-hero" aria-label="Featured floral collections">
+    <div class="hero-slides">
+      <article class="hero-slide active" data-slide="0">
+        <img src="assets/img-13-98ad5d67a08a.webp" alt="Elegant artificial flower wall for a wedding venue" fetchpriority="high">
+        <div class="hero-shade"></div>
+        <div class="hero-copy">
+          <p class="eyebrow">ARTIFICIAL WEDDING &amp; HOME FLORALS</p>
+          <h1>Floral moments,<br><em>beautifully made.</em></h1>
+          <p>Versatile floral backdrops and arrangements for weddings, events and thoughtfully styled spaces.</p>
+          <div class="hero-actions"><a class="btn dark" href="products.html">Explore collections <span>↗</span></a><button class="btn hero-quote" data-quote>Request a quote</button></div>
+        </div>
+      </article>
+      <article class="hero-slide" data-slide="1">
+        <img src="assets/img-21-a69b8a47539f.webp" alt="Romantic floral arch for a wedding ceremony" loading="lazy">
+        <div class="hero-shade"></div>
+        <div class="hero-copy">
+          <p class="eyebrow">MADE FOR YOUR MOMENT</p>
+          <h2>Set the scene<br><em>with florals.</em></h2>
+          <p>From ceremony arches to statement installations, build a look that feels uniquely yours.</p>
+          <div class="hero-actions"><a class="btn dark" href="custom.html">Explore custom florals <span>↗</span></a><button class="btn hero-quote" data-quote>Discuss a project</button></div>
+        </div>
+      </article>
+      <article class="hero-slide" data-slide="2">
+        <img src="assets/img-23-3e513201ee0d.webp" alt="Warm floral styling for a wedding reception" loading="lazy">
+        <div class="hero-shade"></div>
+        <div class="hero-copy">
+          <p class="eyebrow">WHOLESALE COLLECTIONS</p>
+          <h2>Ideas for every<br><em>kind of space.</em></h2>
+          <p>Discover color-led collections and practical floral solutions for studios, planners and retailers.</p>
+          <div class="hero-actions"><a class="btn dark" href="shop-by-color.html">Shop by color <span>↗</span></a><button class="btn hero-quote" data-quote>Get a quote</button></div>
+        </div>
+      </article>
+    </div>
+    <div class="hero-controls">
+      <div class="hero-pagination" aria-label="Choose banner slide">
+        <button class="hero-dot active" data-go-slide="0" aria-label="Slide 1"></button>
+        <button class="hero-dot" data-go-slide="1" aria-label="Slide 2"></button>
+        <button class="hero-dot" data-go-slide="2" aria-label="Slide 3"></button>
+      </div>
+      <div class="hero-arrows"><button data-hero-prev aria-label="Previous banner">←</button><span class="hero-count"><b id="hero-current">01</b> / 03</span><button data-hero-next aria-label="Next banner">→</button></div>
+    </div>
+    <div class="hero-scroll-note">SCROLL TO EXPLORE <span>↓</span></div>
+  </section>
+
+  <section class="home-intro wrap">
+    <div><p class="eyebrow">THE ZHUOHUI APPROACH</p><h2>Designed for the moments<br>people remember.</h2></div>
+    <p>Explore artificial florals by product, palette or setting. From one statement backdrop to coordinated event styling, we help you source the pieces that bring your vision together.</p>
+  </section>
+
+  <section class="home-featured wrap">
+    <div class="section-heading"><div><p class="eyebrow">A FEW PLACES TO START</p><h2>Explore our collections</h2></div><a class="text-link" href="products.html">View product home ↗</a></div>
+    <div class="home-category-grid">
+      <a class="home-category" href="flower-walls.html"><img src="assets/img-13-98ad5d67a08a.webp" alt="Flower wall collection" loading="lazy"><span>01 / BACKDROPS</span><h3>Flower Walls</h3><b>Explore walls ↗</b></a>
+      <a class="home-category" href="custom.html"><img src="assets/img-21-a69b8a47539f.webp" alt="Wedding flower arch collection" loading="lazy"><span>02 / CEREMONIES</span><h3>Flower Arches</h3><b>Explore arches ↗</b></a>
+      <a class="home-category" href="inspiration.html"><img src="assets/img-05-c1ea90012f90.webp" alt="Floral centerpiece and runner" loading="lazy"><span>03 / TABLE STYLING</span><h3>Centerpieces &amp; Runners</h3><b>Find inspiration ↗</b></a>
+    </div>
+  </section>
+
+
+
+  <section class="home-mini-products wrap">
+    <div class="section-heading"><div><p class="eyebrow">SELECTED DESIGNS</p><h2>Featured products</h2></div><a class="text-link" href="products.html">Browse all products ↗</a></div>
+    <div id="home-featured-products" class="home-mini-product-grid">
+      <article class="home-mini-product"><img src="assets/img-01-06abd7b81a6a.webp" alt="Cloud white floral wall"><a class="home-mini-title" href="products.html">Cloud White Floral Wall</a><p>Artificial florals for weddings and events</p></article>
+      <article class="home-mini-product"><img src="assets/img-03-93eb32687246.webp" alt="Sage white luxury arch"><a class="home-mini-title" href="products.html">Sage White Luxury Arch</a><p>Artificial florals for weddings and events</p></article>
+      <article class="home-mini-product"><img src="assets/img-05-c1ea90012f90.webp" alt="Floral centerpiece"><a class="home-mini-title" href="products.html">Floral Centerpiece</a><p>Artificial florals for weddings and events</p></article>
+      <article class="home-mini-product"><img src="assets/img-37-364e1919d2eb.webp" alt="Berry red rose wall"><a class="home-mini-title" href="products.html">Berry Red Rose Wall</a><p>Artificial florals for weddings and events</p></article>
+    </div>
+  </section>
+
+  <section class="home-color-band">
+    <div class="wrap">
+      <div class="section-heading"><div><p class="eyebrow">FIND YOUR PALETTE</p><h2>Shop by color</h2><p class="section-desc">Start with a tone. Build a cohesive floral story.</p></div><a class="text-link" href="shop-by-color.html">Explore all colors ↗</a></div>
+      <div class="home-color-grid">
+        <a href="shop-by-color.html?color=white"><img src="assets/img-11-17bed21c6a73.webp" alt="Cloud Dancer White palette" loading="lazy"><span class="swatches"><i style="background:#f4f0e8"></i><i style="background:#e4d8c9"></i><i style="background:#b9a58f"></i></span><b>Cloud Dancer White</b></a>
+        <a href="shop-by-color.html?color=blush"><img src="assets/img-29-c922c1aae6c7.webp" alt="Blush palette" loading="lazy"><span class="swatches"><i style="background:#f0d9d7"></i><i style="background:#d8a8a7"></i><i style="background:#b8787e"></i></span><b>Blush</b></a>
+        <a href="shop-by-color.html?color=sage"><img src="assets/img-35-62e39a4f2cce.webp" alt="Sage green palette" loading="lazy"><span class="swatches"><i style="background:#c9d0b5"></i><i style="background:#929f7c"></i><i style="background:#465236"></i></span><b>Sage Green</b></a>
+        <a href="shop-by-color.html?color=berry"><img src="assets/img-37-364e1919d2eb.webp" alt="Berry and burgundy palette" loading="lazy"><span class="swatches"><i style="background:#5a1028"></i><i style="background:#8b2636"></i><i style="background:#b8564a"></i></span><b>Berry &amp; Burgundy</b></a>
+        <a href="shop-by-color.html?color=terri"><img src="assets/img-25-0707b10d38c8.webp" alt="Terri palette" loading="lazy"><span class="swatches"><i style="background:#a65d38"></i><i style="background:#c88d6b"></i><i style="background:#e2c9ad"></i></span><b>Terri</b></a>
+        <a href="shop-by-color.html?color=blue"><img src="assets/img-41-d3a7e99842ac.webp" alt="French blue and purple palette" loading="lazy"><span class="swatches"><i style="background:#9cb6d1"></i><i style="background:#6d86ac"></i><i style="background:#6c557d"></i></span><b>French Blue &amp; Purple</b></a>
+        <a href="shop-by-color.html?color=mix"><img src="assets/img-39-c22b8b192482.webp" alt="Mixed color palette" loading="lazy"><span class="swatches"><i style="background:#e7c6b7"></i><i style="background:#c4a76f"></i><i style="background:#72845f"></i></span><b>Mix</b></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-cta wrap">
+    <div><p class="eyebrow">YOUR IDEA, OUR FLORALS</p><h2>Planning something<br><em>beautiful?</em></h2><p>Tell us about your venue, palette, quantity and timeline. We’ll help you find the right floral options.</p></div>
+    <div class="home-cta-actions"><button class="btn dark" data-quote>Tell us about your project ↗</button><a class="text-link" href="about.html">Get to know Zhuohui</a></div>
+  </section>
 </main>
+
 <footer class="footer"><div class="wrap"><div class="footer-grid"><div><a class="brand" href="index.html"><strong>ZHUOHUI</strong><span>F L O R A L</span></a><p>Artificial florals for beautiful celebrations and thoughtfully styled spaces.</p></div><div><h4>EXPLORE</h4><div class="footer-links"><a href="products.html">Main products</a><a href="shop-by-color.html">Shop by color</a><a href="inspiration.html">Floral inspiration</a><a href="custom.html">Custom florals</a><a href="about.html">About Us</a></div></div><div><h4>LET’S CONNECT</h4><div class="footer-links"><a href="tel:+8613617312076">+86 136 1731 2076</a><a href="mailto:zhouhuiflower.william@gmail.com">zhouhuiflower.william@gmail.com</a><a href="#" data-quote>Start an enquiry ↗</a></div></div><div><h4>FOR YOUR NEXT IDEA</h4><p>Tell us what you’re sourcing. We’ll help you bring it together.</p><button class="btn" data-quote>Start a conversation ↗</button></div></div><div class="footer-bottom"><span>© 2026 Changsha Zhuohui Trading Co., Ltd.</span><span>CHANGSHA, CHINA · MADE FOR THE WORLD</span><a href="#top">Back to top ↑</a></div></div></footer>
 <div class="modal-backdrop" id="quote-modal" role="dialog" aria-modal="true" aria-labelledby="quote-title"><div class="modal"><div class="modal-top"><span class="eyebrow">WHOLESALE &amp; CUSTOM ENQUIRIES</span><button class="close" aria-label="Close enquiry form">×</button></div><h2 id="quote-title">Tell us about your project.</h2><p class="notice">Share the product, quantity and destination. Your email app will open with the enquiry details ready to send.</p><form id="quote-form"><div class="form-grid"><label class="field">Your name<input name="name" required placeholder="Name"></label><label class="field">Business email<input name="email" type="email" required placeholder="name@company.com"></label><label class="field">Product of interest<select name="product"><option>Flower walls</option><option>Flower arches</option><option>Tabletop &amp; centerpiece</option><option>Wreaths &amp; floral details</option><option>Artificial plants</option><option>Custom project</option></select></label><label class="field">Estimated quantity<input name="quantity" placeholder="e.g. 20 pieces"></label><label class="field full">Project details<textarea name="details" placeholder="Colors, sizes, delivery country, timeline…"></textarea></label></div><p class="notice">This demo opens your email client; form data is not stored on a server.</p><button class="btn dark" type="submit">Prepare email enquiry ↗</button></form></div></div>
 <script>
@@ -129,5 +248,35 @@ modal.querySelector('.close').addEventListener('click',closeQuote);modal.addEven
 document.querySelector('#quote-form').addEventListener('submit',e=>{e.preventDefault();const f=new FormData(e.target);const body=`Name: ${f.get('name')}\r\nBusiness email: ${f.get('email')}\r\nProduct: ${f.get('product')}\r\nQuantity: ${f.get('quantity')}\r\nDetails: ${f.get('details')}`;location.href=`mailto:zhouhuiflower.william@gmail.com?subject=${encodeURIComponent('Zhuohui Floral enquiry — '+f.get('product'))}&body=${encodeURIComponent(body)}`;closeQuote()});
 document.querySelectorAll('[data-show]').forEach(btn=>btn.addEventListener('click',()=>{const kind=btn.dataset.show;const extras=[...document.querySelectorAll(kind==='wall'?'.extra-wall':'.extra-arch')];const open=btn.dataset.open!=='true';extras.forEach(x=>x.hidden=!open);btn.dataset.open=open?'true':'false';btn.textContent=open?'Show fewer':'Show 6 more'}));
 </script>
+
+<script>
+(() => {
+  const slides=[...document.querySelectorAll('.hero-slide')];
+  const dots=[...document.querySelectorAll('[data-go-slide]')];
+  const current=document.querySelector('#hero-current');
+  if(!slides.length)return;
+  let index=0,timer=null;
+  function show(next){index=(next+slides.length)%slides.length;slides.forEach((s,i)=>s.classList.toggle('active',i===index));dots.forEach((d,i)=>d.classList.toggle('active',i===index));if(current)current.textContent=String(index+1).padStart(2,'0');}
+  function restart(){if(timer)clearInterval(timer);timer=setInterval(()=>show(index+1),6500);}
+  dots.forEach(d=>d.addEventListener('click',()=>{show(Number(d.dataset.goSlide));restart()}));
+  document.querySelector('[data-hero-prev]')?.addEventListener('click',()=>{show(index-1);restart()});
+  document.querySelector('[data-hero-next]')?.addEventListener('click',()=>{show(index+1);restart()});
+  const hero=document.querySelector('.home-hero');
+  hero?.addEventListener('mouseenter',()=>timer&&clearInterval(timer));
+  hero?.addEventListener('mouseleave',restart);
+  document.addEventListener('visibilitychange',()=>document.hidden?clearInterval(timer):restart());
+  show(0);restart();
+})();
+(async()=>{
+ const grid=document.querySelector('#home-featured-products');if(!grid)return;
+ try{
+  const response=await fetch('data/products.json');if(!response.ok)throw new Error('products');
+  const products=await response.json();
+  const chosen=products.filter(p=>p.status!=='hidden').sort((a,b)=>(a.sortOrder||999)-(b.sortOrder||999)).slice(0,4);
+  grid.innerHTML=chosen.map(p=>`<article class="home-mini-product"><a href="product-detail.html?id=${encodeURIComponent(p.id)}"><img src="${String(p.image||'').replace(/"/g,'&quot;')}" alt="${String(p.name||'').replace(/"/g,'&quot;')}" loading="lazy"></a><a class="home-mini-title" href="product-detail.html?id=${encodeURIComponent(p.id)}">${p.name||'Floral design'}</a><p>${p.description||'Artificial florals for weddings and events'}</p><button type="button" class="text-link" data-product="${String(p.name||'').replace(/"/g,'&quot;')}">Enquire about this design ↗</button></article>`).join('');
+ }catch(e){console.warn('Featured products could not be loaded',e)}
+})();
+</script>
+
 <script src="site-content.js"></script>
 </body></html>
