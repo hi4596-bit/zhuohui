@@ -51,3 +51,10 @@ SHOP BY COLOR UPDATE
 - Products navigation now has a secondary menu: All collections, Shop by color, Flower walls, Flower arches, Wreaths, Potted florals.
 - Keep the assets folder next to the HTML files when deploying to GitHub Pages.
 - Color palettes filter the local sample product set. Product pricing and review counts are not fabricated; this page uses inquiry-oriented product cards.
+
+
+HOMEPAGE DESIGN UPDATE
+- index.html now follows the supplied long homepage design: Flower Walls, Flower Arches, Shop by Area, Shop by Color, and lower product category groups.
+- All images use local assets/ relative paths. Keep the assets directory alongside the HTML pages.
+- Product pricing and review counts are not fabricated; product cards use quote/enquiry actions.
+- Responsive layout: 6-column desktop product grids, 3-column tablet grids, 2-column mobile grids; color section adjusts for narrow screens.

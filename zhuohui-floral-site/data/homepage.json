@@ -1,0 +1,93 @@
+{
+  "siteName": "Zhuohui Floral",
+  "announcement": "Wholesale collections. Made-to-order possibilities.",
+  "modules": [
+    {
+      "id": "flower-walls",
+      "title": "Flower Walls",
+      "subtitle": "",
+      "bannerImage": "assets/img-13-98ad5d67a08a.webp",
+      "visible": true,
+      "sortOrder": 1,
+      "type": "featured-products",
+      "productCategory": "flower-walls"
+    },
+    {
+      "id": "flower-arches",
+      "title": "Flower Arches",
+      "subtitle": "",
+      "bannerImage": "assets/img-21-a69b8a47539f.webp",
+      "visible": true,
+      "sortOrder": 2,
+      "type": "featured-products",
+      "productCategory": "flower-arches"
+    },
+    {
+      "id": "shop-by-area",
+      "title": "Shop by Area",
+      "subtitle": "Browse by where the flowers will go.",
+      "bannerImage": "",
+      "visible": true,
+      "sortOrder": 3,
+      "type": "area-cards"
+    },
+    {
+      "id": "shop-by-color",
+      "title": "Shop by Color",
+      "subtitle": "Start with a color palette.",
+      "bannerImage": "",
+      "visible": true,
+      "sortOrder": 4,
+      "type": "color-cards"
+    },
+    {
+      "id": "more-collections",
+      "title": "More Collections",
+      "subtitle": "",
+      "bannerImage": "",
+      "visible": true,
+      "sortOrder": 5,
+      "type": "category-columns",
+      "columns": [
+        {
+          "id": "centerpieces",
+          "title": "Tabletop & Centerpiece",
+          "subtitle": "Finishing touches and smaller floral accents."
+        },
+        {
+          "id": "wreaths",
+          "title": "Wreaths & Floral Details",
+          "subtitle": "Decorative accents for seasonal and quiet details."
+        },
+        {
+          "id": "plants",
+          "title": "Artificial Plants",
+          "subtitle": "Added greenery, height and softer edges."
+        }
+      ]
+    }
+  ],
+  "areas": [
+    {
+      "id": "welcome",
+      "title": "Welcome",
+      "description": "First impressions, guest books and arrival photos.",
+      "image": "assets/img-13-98ad5d67a08a.webp",
+      "link": "inspiration.html"
+    },
+    {
+      "id": "ceremony",
+      "title": "Ceremony",
+      "description": "Vows, aisle moments and the main floral frame.",
+      "image": "assets/img-21-a69b8a47539f.webp",
+      "link": "custom.html"
+    },
+    {
+      "id": "reception",
+      "title": "Reception",
+      "description": "Dining, speeches and the room around the tables.",
+      "image": "assets/img-29-c922c1aae6c7.webp",
+      "link": "inspiration.html"
+    }
+  ]
+}

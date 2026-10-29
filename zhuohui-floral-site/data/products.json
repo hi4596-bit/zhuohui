@@ -1,0 +1,580 @@
+[
+  {
+    "name": "Cloud White Floral Wall",
+    "description": "Ivory roses · Elegant wedding backdrop",
+    "image": "assets/img-01-06abd7b81a6a.webp",
+    "category": "flower-walls",
+    "colors": [
+      "white"
+    ],
+    "featured": true,
+    "sortOrder": 1,
+    "detailPage": "product-detail.html",
+    "id": "cloud-white-floral-wall",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": []
+  },
+  {
+    "name": "Silk Rose White Wall",
+    "description": "Dense white blooms · Photo backdrop",
+    "image": "assets/img-43-47a7e4c2e318.webp",
+    "category": "flower-walls",
+    "colors": [
+      "white"
+    ],
+    "featured": true,
+    "sortOrder": 2,
+    "detailPage": "product-detail.html",
+    "id": "silk-rose-white-wall",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": []
+  },
+  {
+    "name": "Berry Red Rose Wall",
+    "description": "Rich red roses · Statement display",
+    "image": "assets/img-37-364e1919d2eb.webp",
+    "category": "flower-walls",
+    "colors": [
+      "berry"
+    ],
+    "featured": true,
+    "sortOrder": 3,
+    "detailPage": "product-detail.html",
+    "id": "berry-red-rose-wall",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": []
+  },
+  {
+    "name": "Garden Wedding Flower Wall",
+    "description": "Outdoor-ready styling · Custom sizes",
+    "image": "assets/img-13-98ad5d67a08a.webp",
+    "category": "flower-walls",
+    "colors": [
+      "white"
+    ],
+    "featured": true,
+    "sortOrder": 4,
+    "detailPage": "product-detail.html",
+    "id": "garden-wedding-flower-wall",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": []
+  },
+  {
+    "name": "Sage Greenery Wall",
+    "description": "Natural layered foliage · Event styling",
+    "image": "assets/img-35-62e39a4f2cce.webp",
+    "category": "flower-walls",
+    "colors": [
+      "sage"
+    ],
+    "featured": true,
+    "sortOrder": 5,
+    "detailPage": "product-detail.html",
+    "id": "sage-greenery-wall",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": []
+  },
+  {
+    "name": "French Blue Floral Wall",
+    "description": "Blue blooms · Distinctive backdrop",
+    "image": "assets/img-41-d3a7e99842ac.webp",
+    "category": "flower-walls",
+    "colors": [
+      "blue"
+    ],
+    "featured": true,
+    "sortOrder": 6,
+    "detailPage": "product-detail.html",
+    "id": "french-blue-floral-wall",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": []
+  },
+  {
+    "name": "Mixed Color Floral Wall",
+    "description": "Bright mixed blooms · Event backdrop",
+    "image": "assets/img-39-c22b8b192482.webp",
+    "category": "flower-walls",
+    "colors": [
+      "mix"
+    ],
+    "featured": false,
+    "sortOrder": 7,
+    "detailPage": "product-detail.html",
+    "id": "mixed-color-floral-wall",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": []
+  },
+  {
+    "name": "Seasonal Floral Panel",
+    "description": "Colorful accents · Custom combinations",
+    "image": "assets/img-33-8c9ac0b12e22.webp",
+    "category": "flower-walls",
+    "colors": [
+      "white"
+    ],
+    "featured": false,
+    "sortOrder": 8,
+    "detailPage": "product-detail.html",
+    "id": "seasonal-floral-panel",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": []
+  },
+  {
+    "name": "Sage White Luxury Arch",
+    "description": "White flowers & greenery",
+    "image": "assets/img-03-93eb32687246.webp",
+    "category": "flower-arches",
+    "colors": [
+      "sage"
+    ],
+    "featured": true,
+    "sortOrder": 9,
+    "detailPage": "product-detail.html",
+    "id": "sage-white-luxury-arch",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": []
+  },
+  {
+    "name": "Blush Garden Arch",
+    "description": "Romantic blush · Ceremony focal point",
+    "image": "assets/img-27-dd89d8ac5e80.webp",
+    "category": "flower-arches",
+    "colors": [
+      "blush"
+    ],
+    "featured": true,
+    "sortOrder": 10,
+    "detailPage": "product-detail.html",
+    "id": "blush-garden-arch",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": []
+  },
+  {
+    "name": "Lush Floral Arch",
+    "description": "Layered flowers · Made to order",
+    "image": "assets/img-21-a69b8a47539f.webp",
+    "category": "flower-arches",
+    "colors": [
+      "berry"
+    ],
+    "featured": true,
+    "sortOrder": 11,
+    "detailPage": "product-detail.html",
+    "id": "lush-floral-arch",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": []
+  },
+  {
+    "name": "Cloud White Ceremony Arch",
+    "description": "Soft white palette · Wedding styling",
+    "image": "assets/img-13-98ad5d67a08a.webp",
+    "category": "flower-arches",
+    "colors": [
+      "white"
+    ],
+    "featured": true,
+    "sortOrder": 12,
+    "detailPage": "product-detail.html",
+    "id": "cloud-white-ceremony-arch",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": []
+  },
+  {
+    "name": "Berry Statement Arch",
+    "description": "Deep red flowers · Bold styling",
+    "image": "assets/img-37-364e1919d2eb.webp",
+    "category": "flower-arches",
+    "colors": [
+      "berry"
+    ],
+    "featured": true,
+    "sortOrder": 13,
+    "detailPage": "product-detail.html",
+    "id": "berry-statement-arch",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": []
+  },
+  {
+    "name": "French Blue Floral Arch",
+    "description": "Blue and ivory · Custom palette",
+    "image": "assets/img-41-d3a7e99842ac.webp",
+    "category": "flower-arches",
+    "colors": [
+      "blue"
+    ],
+    "featured": true,
+    "sortOrder": 14,
+    "detailPage": "product-detail.html",
+    "id": "french-blue-floral-arch",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": []
+  },
+  {
+    "name": "Blush Floral Installation",
+    "description": "Coordinated event florals",
+    "image": "assets/img-05-c1ea90012f90.webp",
+    "category": "flower-arches",
+    "colors": [
+      "blush"
+    ],
+    "featured": false,
+    "sortOrder": 15,
+    "detailPage": "product-detail.html",
+    "id": "blush-floral-installation",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": []
+  },
+  {
+    "name": "Ivory Floral Installation",
+    "description": "Warm ivory palette · Made to order",
+    "image": "assets/img-29-c922c1aae6c7.webp",
+    "category": "flower-arches",
+    "colors": [
+      "white"
+    ],
+    "featured": false,
+    "sortOrder": 16,
+    "detailPage": "product-detail.html",
+    "id": "ivory-floral-installation",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": []
+  },
+  {
+    "name": "Ivory Table Centerpiece",
+    "description": "Soft ivory floral detail",
+    "image": "assets/img-29-c922c1aae6c7.webp",
+    "category": "centerpieces",
+    "colors": [
+      "white"
+    ],
+    "featured": true,
+    "sortOrder": 17,
+    "id": "ivory-table-centerpiece",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": [],
+    "detailPage": "product-detail.html"
+  },
+  {
+    "name": "Blush Floral Runner",
+    "description": "Romantic table styling",
+    "image": "assets/img-05-c1ea90012f90.webp",
+    "category": "centerpieces",
+    "colors": [
+      "blush"
+    ],
+    "featured": true,
+    "sortOrder": 18,
+    "id": "blush-floral-runner",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": [],
+    "detailPage": "product-detail.html"
+  },
+  {
+    "name": "Mixed Floral Detail",
+    "description": "Colorful decorative florals",
+    "image": "assets/img-07-4e16fdd93bc6.webp",
+    "category": "wreaths",
+    "colors": [
+      "mix"
+    ],
+    "featured": true,
+    "sortOrder": 19,
+    "id": "mixed-floral-detail",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": [],
+    "detailPage": "product-detail.html"
+  },
+  {
+    "name": "Seasonal Green & Berry",
+    "description": "Seasonal color accents",
+    "image": "assets/img-33-8c9ac0b12e22.webp",
+    "category": "wreaths",
+    "colors": [
+      "sage"
+    ],
+    "featured": true,
+    "sortOrder": 20,
+    "id": "seasonal-green-berry",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": [],
+    "detailPage": "product-detail.html"
+  },
+  {
+    "name": "Potted Floral Arrangement",
+    "description": "Neutral interior styling",
+    "image": "assets/img-47-2a0ad0b9b9a3.webp",
+    "category": "plants",
+    "colors": [
+      "white"
+    ],
+    "featured": true,
+    "sortOrder": 21,
+    "id": "potted-floral-arrangement",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": [],
+    "detailPage": "product-detail.html"
+  },
+  {
+    "name": "Greenery & Floral Mix",
+    "description": "Mixed greenery accents",
+    "image": "assets/img-25-0707b10d38c8.webp",
+    "category": "plants",
+    "colors": [
+      "sage"
+    ],
+    "featured": true,
+    "sortOrder": 22,
+    "id": "greenery-floral-mix",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": [],
+    "detailPage": "product-detail.html"
+  },
+  {
+    "name": "Berry Rose Wall",
+    "description": "Rich red roses · Statement backdrop",
+    "image": "assets/img-37-364e1919d2eb.webp",
+    "category": "flower-walls",
+    "colors": [
+      "berry"
+    ],
+    "featured": false,
+    "sortOrder": 23,
+    "id": "berry-rose-wall",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": [],
+    "detailPage": "product-detail.html"
+  },
+  {
+    "name": "Terracotta Potted Florals",
+    "description": "Warm neutrals · Interior styling",
+    "image": "assets/img-47-2a0ad0b9b9a3.webp",
+    "category": "plants",
+    "colors": [
+      "terri"
+    ],
+    "featured": true,
+    "sortOrder": 24,
+    "id": "terracotta-potted-florals",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": [],
+    "detailPage": "product-detail.html"
+  },
+  {
+    "name": "Mixed Floral Collection",
+    "description": "Multi-tone arrangements",
+    "image": "assets/img-25-0707b10d38c8.webp",
+    "category": "plants",
+    "colors": [
+      "mix"
+    ],
+    "featured": true,
+    "sortOrder": 25,
+    "id": "mixed-floral-collection",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": [],
+    "detailPage": "product-detail.html"
+  },
+  {
+    "name": "Ivory Rose Flower Wall",
+    "description": "White roses · Elegant backdrop",
+    "image": "assets/img-43-47a7e4c2e318.webp",
+    "category": "flower-walls",
+    "colors": [
+      "white"
+    ],
+    "featured": false,
+    "sortOrder": 26,
+    "id": "ivory-rose-flower-wall",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": [],
+    "detailPage": "product-detail.html"
+  },
+  {
+    "name": "Blush Centerpieces & Runners",
+    "description": "Pink roses · Table styling",
+    "image": "assets/img-05-c1ea90012f90.webp",
+    "category": "plants",
+    "colors": [
+      "blush"
+    ],
+    "featured": true,
+    "sortOrder": 27,
+    "id": "blush-centerpieces-runners",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": [],
+    "detailPage": "product-detail.html"
+  },
+  {
+    "name": "Mixed Color Flower Wall",
+    "description": "Colorful blooms · Event backdrop",
+    "image": "assets/img-39-c22b8b192482.webp",
+    "category": "flower-walls",
+    "colors": [
+      "mix"
+    ],
+    "featured": false,
+    "sortOrder": 28,
+    "id": "mixed-color-flower-wall",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": [],
+    "detailPage": "product-detail.html"
+  },
+  {
+    "name": "Christmas Red Rose Floral Wall",
+    "description": "Layered roses · Custom palette",
+    "image": "assets/img-33-8c9ac0b12e22.webp",
+    "category": "flower-walls",
+    "colors": [
+      "berry"
+    ],
+    "featured": false,
+    "sortOrder": 29,
+    "id": "christmas-red-rose-floral-wall",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": [],
+    "detailPage": "product-detail.html"
+  },
+  {
+    "name": "Tropical Green Foliage Wall",
+    "description": "Leaf texture · Indoor & outdoor",
+    "image": "assets/img-35-62e39a4f2cce.webp",
+    "category": "flower-walls",
+    "colors": [
+      "sage"
+    ],
+    "featured": false,
+    "sortOrder": 30,
+    "id": "tropical-green-foliage-wall",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": [],
+    "detailPage": "product-detail.html"
+  },
+  {
+    "name": "Classic Red Rose Flower Wall",
+    "description": "Full coverage · Event backdrop",
+    "image": "assets/img-37-364e1919d2eb.webp",
+    "category": "flower-walls",
+    "colors": [
+      "berry"
+    ],
+    "featured": false,
+    "sortOrder": 31,
+    "id": "classic-red-rose-flower-wall",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": [],
+    "detailPage": "product-detail.html"
+  },
+  {
+    "name": "Multicolor Silk Flower Wall",
+    "description": "Bright mixed blooms · Custom sizes",
+    "image": "assets/img-39-c22b8b192482.webp",
+    "category": "flower-walls",
+    "colors": [
+      "mix"
+    ],
+    "featured": false,
+    "sortOrder": 32,
+    "id": "multicolor-silk-flower-wall",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": [],
+    "detailPage": "product-detail.html"
+  },
+  {
+    "name": "Blue Hydrangea Floral Wall",
+    "description": "Blue blooms · Photo backdrop",
+    "image": "assets/img-41-d3a7e99842ac.webp",
+    "category": "flower-walls",
+    "colors": [
+      "blue"
+    ],
+    "featured": false,
+    "sortOrder": 33,
+    "id": "blue-hydrangea-floral-wall",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": [],
+    "detailPage": "product-detail.html"
+  },
+  {
+    "name": "White Floral Wall Panel",
+    "description": "Neutral palette · Wedding display",
+    "image": "assets/img-43-47a7e4c2e318.webp",
+    "category": "flower-walls",
+    "colors": [
+      "white"
+    ],
+    "featured": false,
+    "sortOrder": 34,
+    "id": "white-floral-wall-panel",
+    "price": "",
+    "compareAt": "",
+    "status": "active",
+    "tags": [],
+    "detailPage": "product-detail.html"
+  }
+]

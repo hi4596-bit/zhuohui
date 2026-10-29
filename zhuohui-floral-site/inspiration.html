@@ -57,4 +57,5 @@ const modal=document.querySelector('#quote-modal');function closeModal(){modal.c
 modal.querySelector('.close').addEventListener('click',closeModal);modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 document.querySelector('#quote-form').addEventListener('submit',e=>{e.preventDefault();const f=new FormData(e.target);const body=`Name: ${f.get('name')}%0D%0ABusiness email: ${f.get('email')}%0D%0AProduct: ${f.get('product')}%0D%0AQuantity: ${f.get('quantity')}%0D%0ADetails: ${f.get('details')}`;location.href=`mailto:zhouhuiflower.william@gmail.com?subject=${encodeURIComponent('Zhuohui Floral enquiry — '+f.get('product'))}&body=${body}`;closeModal()});
 document.querySelectorAll('[data-filter]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-filter]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');let filter=btn.dataset.filter;document.querySelectorAll('.product-card, .category-card[data-type]').forEach(card=>card.hidden=!(filter==='all'||card.dataset.type===filter))}));
-</script></body></html>
+</script><script src="site-content.js"></script>
+</body></html>

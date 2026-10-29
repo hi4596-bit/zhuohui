@@ -44,38 +44,123 @@
  .navlinks .nav-item:hover .nav-caret{transform:none}
 }
 
+
+/* Screenshot-led Shop by Color layout */
+.intro{padding:0; height:0; overflow:hidden}
+main .wrap{max-width:1280px;padding:0 28px}
+.palette-feature{grid-template-columns:36% 64%;min-height:260px;height:260px;margin:25px 0 34px;background:#efeee8}
+.palette-copy{padding:32px clamp(24px,3.3vw,44px)}
+.palette-copy h2{font-size:clamp(25px,2.2vw,34px);margin:0 0 11px}
+.palette-copy p{font-size:13px;line-height:1.55;margin-bottom:18px}
+.palette-image,.palette-image img{height:260px;min-height:260px}
+.palette-dots{margin-top:1px}
+.palette-dots i{width:31px;height:31px;margin-left:-7px}
+.palette-dots i:first-child{margin-left:0}
+.collection-bar{margin:0 0 29px;display:block}
+.category-pills{gap:5px}
+.category-pill{padding:9px 13px;font-size:11px}
+.results-count{display:block;margin-top:10px}
+.product-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:28px 14px}
+.product-image{aspect-ratio:1/1}
+.product-card h3{font:14px/1.35 var(--sans);font-weight:400;margin:10px 0 4px;min-height:38px;color:#2d3c31}
+.product-card p{font-size:11px;line-height:1.35;margin:0 0 8px;min-height:15px}
+.product-actions{border:0;padding-top:2px;display:flex;align-items:center;justify-content:space-between;flex-direction:row;gap:6px}
+.product-actions span{font-size:11px;color:#202720;font-weight:600}
+.card-enquire{flex:0 0 33px;width:33px;height:33px;border:1px solid #d3d6d1;border-radius:50%;background:#fff;color:#27372c;display:inline-flex;align-items:center;justify-content:center;font-size:15px}
+.card-enquire:hover{background:var(--green);color:#fff}
+.show-more-wrap{padding:32px 0 58px}
+.show-more{min-width:120px;padding:12px 27px}
+@media(max-width:1100px){
+ .product-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .palette-feature{grid-template-columns:40% 60%}
+}
+@media(max-width:850px){
+ .main .wrap,main .wrap{padding:0 22px}
+ .palette-feature{grid-template-columns:1fr;height:auto;min-height:0;margin:22px 0 27px}
+ .palette-copy{padding:26px 24px}
+ .palette-image,.palette-image img{height:230px;min-height:230px}
+ .collection-bar{margin-bottom:22px}
+ .product-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:22px 12px}
+ .product-actions{align-items:center;flex-direction:row}
+}
+@media(max-width:520px){
+ main .wrap{padding:0 16px}
+ .palette-feature{margin-top:16px}
+ .palette-copy{padding:23px 20px}
+ .palette-copy h2{font-size:29px}
+ .palette-image,.palette-image img{height:190px;min-height:190px}
+ .category-pills{gap:6px}
+ .category-pill{padding:8px 11px;font-size:10px}
+ .results-count{font-size:10px}
+ .product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:23px 12px}
+ .product-card h3{font-size:13px;min-height:35px}
+ .product-card p{font-size:10px}
+ .product-actions span{font-size:10px}
+ .card-enquire{width:30px;height:30px;flex-basis:30px}
+}
+
 </style></head>
 <body id="top">
 <div class="announcement">ARTIFICIAL WEDDING &amp; HOME FLORALS <a href="#" data-quote>Wholesale &amp; custom enquiries ↗</a></div>
 <header class="header"><nav class="nav"><a class="brand" href="index.html" aria-label="Zhuohui Floral home"><strong>ZHUOHUI</strong><span>F L O R A L</span></a><button class="mobile-toggle" aria-label="Open navigation" aria-expanded="false">☰</button><div class="navlinks"><div class="nav-item has-subnav"><a class="nav-parent" href="products.html">Products <span class="nav-caret" aria-hidden="true">⌄</span></a><div class="subnav" aria-label="Product categories"><a href="products.html">All collections</a><a href="flower-walls.html">Flower walls</a><a href="custom.html">Flower arches</a><a href="inspiration.html">Wreaths &amp; inspiration</a></div></div><div class="nav-item has-subnav"><a class="nav-parent" href="shop-by-color.html">Shop by Color <span class="nav-caret" aria-hidden="true">⌄</span></a><div class="subnav color-subnav" aria-label="Shop by color"><a href="shop-by-color.html?color=white"><span class="menu-swatch" style="background:#e8ded0"></span>Cloud Dancer White</a><a href="shop-by-color.html?color=blush"><span class="menu-swatch" style="background:#e7bfc2"></span>Blush</a><a href="shop-by-color.html?color=sage"><span class="menu-swatch" style="background:#96a67c"></span>Sage Green</a><a href="shop-by-color.html?color=berry"><span class="menu-swatch" style="background:#922d30"></span>Berry &amp; Burgundy</a><a href="shop-by-color.html?color=terri"><span class="menu-swatch" style="background:#c2764c"></span>Terri</a><a href="shop-by-color.html?color=blue"><span class="menu-swatch" style="background:#7da6c6"></span>French Blue &amp; Purple</a><a href="shop-by-color.html?color=mix"><span class="menu-swatch menu-swatch-mix"></span>Mix</a></div></div><a href="inspiration.html">Inspiration</a><a href="custom.html">Custom Florals</a><a href="about.html">About Us</a></div><button class="btn dark" data-quote>Get a quote <span>↗</span></button></nav></header>
 <main><div class="wrap">
 <section class="intro"><div class="crumb"><a href="index.html">Home</a>　/　Shop by color</div><span class="eyebrow">A PALETTE FOR EVERY SETTING</span><h1>Shop by color</h1><p>Choose a color story to explore coordinating flower walls, arches and floral details for weddings, events and interiors.</p></section>
-<div class="color-heading">SHOP BY COLOR</div>
-<section class="palette-list" aria-label="Choose a color palette">
-<button class="palette-button" data-palette="white" aria-pressed="true"><span class="swatches"><i style="background:#f0ede6"></i><i style="background:#e8ded0"></i><i style="background:#d4c5b1"></i><i style="background:#b7a58e"></i><i style="background:#866c54"></i></span><span class="palette-name">Cloud Dancer White</span></button>
-<button class="palette-button" data-palette="blush" aria-pressed="false"><span class="swatches"><i style="background:#f0d7d7"></i><i style="background:#e7bfc2"></i><i style="background:#d9a5aa"></i><i style="background:#c88990"></i><i style="background:#a96770"></i></span><span class="palette-name">Blush</span></button>
-<button class="palette-button" data-palette="sage" aria-pressed="false"><span class="swatches"><i style="background:#d9dfbd"></i><i style="background:#b8c49b"></i><i style="background:#96a67c"></i><i style="background:#6d7e4b"></i><i style="background:#424d20"></i></span><span class="palette-name">Sage Green</span></button>
-<button class="palette-button" data-palette="berry" aria-pressed="false"><span class="swatches"><i style="background:#42102d"></i><i style="background:#671b28"></i><i style="background:#922d30"></i><i style="background:#c16a6d"></i><i style="background:#e8d6bf"></i></span><span class="palette-name">Berry &amp; Burgundy</span></button>
-<button class="palette-button" data-palette="terri" aria-pressed="false"><span class="swatches"><i style="background:#a94f2a"></i><i style="background:#c2764c"></i><i style="background:#d5a782"></i><i style="background:#e3d4bd"></i><i style="background:#5d5844"></i></span><span class="palette-name">Terri</span></button>
-<button class="palette-button" data-palette="blue" aria-pressed="false"><span class="swatches"><i style="background:#cfd4d5"></i><i style="background:#a9c3d9"></i><i style="background:#7da6c6"></i><i style="background:#8173a1"></i><i style="background:#382b50"></i></span><span class="palette-name">French Blue &amp; Purple</span></button>
-<button class="palette-button" data-palette="mix" aria-pressed="false"><span class="swatches mix"></span><span class="palette-name">Mix</span></button>
-</section>
 <section class="palette-feature" aria-live="polite">
 <div class="palette-copy"><span class="season" id="palette-season">Spring</span><h2 id="palette-title">Cloud Dancer White</h2><p id="palette-description">Warm white, ivory and muted green keep the palette light, natural and softly layered.</p><div class="palette-dots" id="palette-dots"><i style="background:#f0ede6"></i><i style="background:#e8ded0"></i><i style="background:#d4c5b1"></i><i style="background:#b7a58e"></i><i style="background:#866c54"></i></div></div>
 <div class="palette-image"><img id="palette-hero" src="assets/img-29-c922c1aae6c7.webp" alt="White and ivory wedding floral table arrangement" fetchpriority="high"></div>
 </section>
 <section class="collection-bar"><div class="category-pills" aria-label="Filter product type"><button class="category-pill" data-type="all" aria-pressed="true">All Featured Products</button><button class="category-pill" data-type="walls" aria-pressed="false">Flower Walls</button><button class="category-pill" data-type="arches" aria-pressed="false">Flower Arches</button><button class="category-pill" data-type="wreaths" aria-pressed="false">Wreaths</button><button class="category-pill" data-type="potted" aria-pressed="false">Potted Florals</button></div><span class="results-count" id="results-count">6 featured collections</span></section>
 <section class="product-grid" id="color-products" aria-label="Floral products">
-<article class="product-card" data-color="white" data-type="walls"><a class="product-image" href="flower-walls.html"><img loading="lazy" src="assets/img-01-06abd7b81a6a.webp" alt="Cloud white artificial flower wall"></a><h3>Cloud White Floral Wall</h3><p>Soft ivory roses · Wedding backdrop</p><div class="product-actions"><span>Wholesale &amp; custom</span><a class="mini-link" href="flower-walls.html">Explore ↗</a></div></article>
-<article class="product-card" data-color="blush" data-type="arches"><a class="product-image" href="custom.html"><img loading="lazy" src="assets/img-27-dd89d8ac5e80.webp" alt="Blush pink floral wedding arch"></a><h3>Blush Garden Arch</h3><p>Blush, ivory &amp; greenery</p><div class="product-actions"><span>Custom options</span><a class="mini-link" href="custom.html">Explore ↗</a></div></article>
-<article class="product-card" data-color="sage" data-type="walls"><a class="product-image" href="flower-walls.html"><img loading="lazy" src="assets/img-35-62e39a4f2cce.webp" alt="Sage green artificial foliage wall"></a><h3>Sage Greenery Wall</h3><p>Layered foliage · Event styling</p><div class="product-actions"><span>Wholesale &amp; custom</span><a class="mini-link" href="flower-walls.html">Explore ↗</a></div></article>
-<article class="product-card" data-color="berry" data-type="walls"><a class="product-image" href="flower-walls.html"><img loading="lazy" src="assets/img-37-364e1919d2eb.webp" alt="Berry red artificial rose wall"></a><h3>Berry Rose Wall</h3><p>Rich red roses · Statement backdrop</p><div class="product-actions"><span>Wholesale &amp; custom</span><a class="mini-link" href="flower-walls.html">Explore ↗</a></div></article>
-<article class="product-card" data-color="terri" data-type="potted"><a class="product-image" href="products.html"><img loading="lazy" src="assets/img-47-2a0ad0b9b9a3.webp" alt="Terracotta and neutral potted florals"></a><h3>Terracotta Potted Florals</h3><p>Warm neutrals · Interior styling</p><div class="product-actions"><span>Custom options</span><a class="mini-link" href="products.html">Explore ↗</a></div></article>
-<article class="product-card" data-color="blue" data-type="walls"><a class="product-image" href="flower-walls.html"><img loading="lazy" src="assets/img-41-d3a7e99842ac.webp" alt="French blue artificial flower wall"></a><h3>French Blue Floral Wall</h3><p>Blue roses · Photo backdrop</p><div class="product-actions"><span>Wholesale &amp; custom</span><a class="mini-link" href="flower-walls.html">Explore ↗</a></div></article>
-<article class="product-card" data-color="mix" data-type="potted"><a class="product-image" href="products.html"><img loading="lazy" src="assets/img-25-0707b10d38c8.webp" alt="Mixed color artificial flowers and potted greenery"></a><h3>Mixed Floral Collection</h3><p>Multi-tone arrangements</p><div class="product-actions"><span>Custom options</span><a class="mini-link" href="products.html">Explore ↗</a></div></article>
-<article class="product-card" data-color="white" data-type="walls"><a class="product-image" href="flower-walls.html"><img loading="lazy" src="assets/img-43-47a7e4c2e318.webp" alt="White artificial rose flower wall"></a><h3>Ivory Rose Flower Wall</h3><p>White roses · Elegant backdrop</p><div class="product-actions"><span>Wholesale &amp; custom</span><a class="mini-link" href="flower-walls.html">Explore ↗</a></div></article>
-<article class="product-card" data-color="blush" data-type="potted"><a class="product-image" href="products.html"><img loading="lazy" src="assets/img-05-c1ea90012f90.webp" alt="Blush pink wedding floral centerpieces"></a><h3>Blush Centerpieces &amp; Runners</h3><p>Pink roses · Table styling</p><div class="product-actions"><span>Custom options</span><a class="mini-link" href="products.html">Explore ↗</a></div></article>
-<article class="product-card" data-color="mix" data-type="walls"><a class="product-image" href="flower-walls.html"><img loading="lazy" src="assets/img-39-c22b8b192482.webp" alt="Multicolor artificial flower wall"></a><h3>Mixed Color Flower Wall</h3><p>Colorful blooms · Event backdrop</p><div class="product-actions"><span>Wholesale &amp; custom</span><a class="mini-link" href="flower-walls.html">Explore ↗</a></div></article>
+<article class="product-card" data-color="white" data-type="walls">
+<a class="product-image" href="flower-walls.html"><img loading="lazy" src="assets/img-01-06abd7b81a6a.webp" alt="white artificial flower wall"></a>
+<h3>Cloud White Floral Wall</h3><p>Soft ivory roses · Wedding backdrop</p>
+<div class="product-actions"><span>Wholesale quote</span><button class="card-enquire" type="button" data-card-enquire="Cloud White Floral Wall" aria-label="Enquire about Cloud White Floral Wall">↗</button></div>
+</article>
+<article class="product-card" data-color="blush" data-type="arches">
+<a class="product-image" href="custom.html"><img loading="lazy" src="assets/img-27-dd89d8ac5e80.webp" alt="blush pink floral wedding arch"></a>
+<h3>Blush Garden Arch</h3><p>Blush, ivory & greenery</p>
+<div class="product-actions"><span>Wholesale quote</span><button class="card-enquire" type="button" data-card-enquire="Blush Garden Arch" aria-label="Enquire about Blush Garden Arch">↗</button></div>
+</article>
+<article class="product-card" data-color="sage" data-type="walls">
+<a class="product-image" href="flower-walls.html"><img loading="lazy" src="assets/img-35-62e39a4f2cce.webp" alt="sage green artificial foliage wall"></a>
+<h3>Sage Greenery Wall</h3><p>Layered foliage · Event styling</p>
+<div class="product-actions"><span>Wholesale quote</span><button class="card-enquire" type="button" data-card-enquire="Sage Greenery Wall" aria-label="Enquire about Sage Greenery Wall">↗</button></div>
+</article>
+<article class="product-card" data-color="berry" data-type="walls">
+<a class="product-image" href="flower-walls.html"><img loading="lazy" src="assets/img-37-364e1919d2eb.webp" alt="berry red artificial rose wall"></a>
+<h3>Berry Rose Wall</h3><p>Rich red roses · Statement backdrop</p>
+<div class="product-actions"><span>Wholesale quote</span><button class="card-enquire" type="button" data-card-enquire="Berry Rose Wall" aria-label="Enquire about Berry Rose Wall">↗</button></div>
+</article>
+<article class="product-card" data-color="terri" data-type="potted">
+<a class="product-image" href="products.html"><img loading="lazy" src="assets/img-47-2a0ad0b9b9a3.webp" alt="terracotta and neutral potted florals"></a>
+<h3>Terracotta Potted Florals</h3><p>Warm neutrals · Interior styling</p>
+<div class="product-actions"><span>Wholesale quote</span><button class="card-enquire" type="button" data-card-enquire="Terracotta Potted Florals" aria-label="Enquire about Terracotta Potted Florals">↗</button></div>
+</article>
+<article class="product-card" data-color="blue" data-type="walls">
+<a class="product-image" href="flower-walls.html"><img loading="lazy" src="assets/img-41-d3a7e99842ac.webp" alt="French blue artificial flower wall"></a>
+<h3>French Blue Floral Wall</h3><p>Blue roses · Photo backdrop</p>
+<div class="product-actions"><span>Wholesale quote</span><button class="card-enquire" type="button" data-card-enquire="French Blue Floral Wall" aria-label="Enquire about French Blue Floral Wall">↗</button></div>
+</article>
+<article class="product-card" data-color="mix" data-type="potted">
+<a class="product-image" href="products.html"><img loading="lazy" src="assets/img-25-0707b10d38c8.webp" alt="mixed color artificial floral arrangement"></a>
+<h3>Mixed Floral Collection</h3><p>Multi-tone arrangements</p>
+<div class="product-actions"><span>Wholesale quote</span><button class="card-enquire" type="button" data-card-enquire="Mixed Floral Collection" aria-label="Enquire about Mixed Floral Collection">↗</button></div>
+</article>
+<article class="product-card" data-color="white" data-type="walls">
+<a class="product-image" href="flower-walls.html"><img loading="lazy" src="assets/img-43-47a7e4c2e318.webp" alt="white artificial rose flower wall"></a>
+<h3>Ivory Rose Flower Wall</h3><p>White roses · Elegant backdrop</p>
+<div class="product-actions"><span>Wholesale quote</span><button class="card-enquire" type="button" data-card-enquire="Ivory Rose Flower Wall" aria-label="Enquire about Ivory Rose Flower Wall">↗</button></div>
+</article>
+<article class="product-card" data-color="blush" data-type="potted">
+<a class="product-image" href="products.html"><img loading="lazy" src="assets/img-05-c1ea90012f90.webp" alt="blush pink wedding floral centerpieces"></a>
+<h3>Blush Centerpieces & Runners</h3><p>Pink roses · Table styling</p>
+<div class="product-actions"><span>Wholesale quote</span><button class="card-enquire" type="button" data-card-enquire="Blush Centerpieces & Runners" aria-label="Enquire about Blush Centerpieces & Runners">↗</button></div>
+</article>
+<article class="product-card" data-color="mix" data-type="walls">
+<a class="product-image" href="flower-walls.html"><img loading="lazy" src="assets/img-39-c22b8b192482.webp" alt="multicolor artificial flower wall"></a>
+<h3>Mixed Color Flower Wall</h3><p>Colorful blooms · Event backdrop</p>
+<div class="product-actions"><span>Wholesale quote</span><button class="card-enquire" type="button" data-card-enquire="Mixed Color Flower Wall" aria-label="Enquire about Mixed Color Flower Wall">↗</button></div>
+</article>
 </section>
 <div class="show-more-wrap"><button class="show-more" id="show-more">Show more</button></div>
 </div></main>
@@ -104,8 +189,17 @@ function selectPalette(key){selectedPalette=key;showAll=false;paletteButtons.for
 paletteButtons.forEach(b=>b.addEventListener('click',()=>selectPalette(b.dataset.palette)));
 typeButtons.forEach(b=>b.addEventListener('click',()=>{selectedType=b.dataset.type;typeButtons.forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));showAll=false;updateProducts()}));
 document.querySelector('#show-more').addEventListener('click',()=>{showAll=true;updateProducts()});
+document.querySelectorAll('[data-card-enquire]').forEach(btn=>btn.addEventListener('click',()=>{
+ const product=btn.getAttribute('data-card-enquire');
+ const modal=document.querySelector('#quote-modal');
+ modal.classList.add('open');document.body.style.overflow='hidden';
+ const select=document.querySelector('#quote-form select[name="product"]');
+ if(select){let opt=[...select.options].find(o=>o.value===product||o.textContent===product);if(!opt){opt=document.createElement('option');opt.value=product;opt.textContent=product;select.appendChild(opt)}select.value=product}
+}));
+
 const requestedPalette=new URLSearchParams(window.location.search).get('color');
 if(requestedPalette && paletteData[requestedPalette]) selectPalette(requestedPalette);
 else updateProducts();
 </script>
+<script src="site-content.js"></script>
 </body></html>

@@ -141,4 +141,5 @@ document.querySelector('.modal-close').addEventListener('click',closeQuote);moda
 document.querySelector('#quote-form').addEventListener('submit',e=>{e.preventDefault();const f=new FormData(e.currentTarget);const subject=encodeURIComponent('Zhuohui Floral enquiry — Milan Green Flower Wall');const body=encodeURIComponent(`Name: ${f.get('name')}\nBusiness email: ${f.get('email')}\nProduct: Milan Green Flower Wall\nSize: ${f.get('size')}\nInclude stand: ${f.get('stand')}\nQuantity / details: ${f.get('details')}`);window.location.href=`mailto:zhouhuiflower.william@gmail.com?subject=${subject}&body=${body}`;closeQuote()});
 document.querySelector('.accordion-toggle').addEventListener('click',e=>{const b=e.currentTarget,p=document.querySelector('#product-details-panel'),open=b.getAttribute('aria-expanded')!=='true';b.setAttribute('aria-expanded',String(open));p.classList.toggle('open',open)});
 </script>
+<script src="site-content.js"></script>
 </body></html>

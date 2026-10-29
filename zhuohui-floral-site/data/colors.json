@@ -1,0 +1,135 @@
+[
+  {
+    "id": "white",
+    "name": "Cloud Dancer White",
+    "shortName": "Cloud Dancer White",
+    "season": "Spring",
+    "description": "Warm white, ivory and muted green keep the palette light, natural and softly layered.",
+    "heroImage": "assets/img-29-c922c1aae6c7.webp",
+    "swatches": [
+      "#f0ede6",
+      "#e8ded0",
+      "#d4c5b1",
+      "#b7a58e",
+      "#866c54"
+    ],
+    "cardImage": "assets/img-29-c922c1aae6c7.webp",
+    "tagline": "Pure, timeless and luminous",
+    "active": true,
+    "sortOrder": 1
+  },
+  {
+    "id": "blush",
+    "name": "Blush",
+    "shortName": "Blush",
+    "season": "Romantic",
+    "description": "Soft blush, rose pink and muted ivory create a romantic palette for ceremonies and intimate celebrations.",
+    "heroImage": "assets/img-27-dd89d8ac5e80.webp",
+    "swatches": [
+      "#f0d7d7",
+      "#e7bfc2",
+      "#d9a5aa",
+      "#c88990",
+      "#a96770"
+    ],
+    "cardImage": "assets/img-05-c1ea90012f90.webp",
+    "tagline": "Soft, romantic and delicate",
+    "active": true,
+    "sortOrder": 2
+  },
+  {
+    "id": "sage",
+    "name": "Sage Green",
+    "shortName": "Sage Green",
+    "season": "Botanical",
+    "description": "Layered sage, olive and natural greens bring an organic feel to garden weddings and modern interiors.",
+    "heroImage": "assets/img-35-62e39a4f2cce.webp",
+    "swatches": [
+      "#d9dfbd",
+      "#b8c49b",
+      "#96a67c",
+      "#6d7e4b",
+      "#424d20"
+    ],
+    "cardImage": "assets/img-35-62e39a4f2cce.webp",
+    "tagline": "Fresh, natural and grounded",
+    "active": true,
+    "sortOrder": 3
+  },
+  {
+    "id": "berry",
+    "name": "Berry & Burgundy",
+    "shortName": "Berry & Burgundy",
+    "season": "Statement",
+    "description": "Berry red, burgundy and deep rose tones create a rich statement for seasonal displays and dramatic backdrops.",
+    "heroImage": "assets/img-37-364e1919d2eb.webp",
+    "swatches": [
+      "#42102d",
+      "#671b28",
+      "#922d30",
+      "#c16a6d",
+      "#e8d6bf"
+    ],
+    "cardImage": "assets/img-37-364e1919d2eb.webp",
+    "tagline": "Rich, dramatic and romantic",
+    "active": true,
+    "sortOrder": 4
+  },
+  {
+    "id": "terri",
+    "name": "Terri",
+    "shortName": "Terri",
+    "season": "Earthy",
+    "description": "Terracotta, warm sand and grounded neutrals pair naturally with autumn styling and contemporary spaces.",
+    "heroImage": "assets/img-47-2a0ad0b9b9a3.webp",
+    "swatches": [
+      "#a94f2a",
+      "#c2764c",
+      "#d5a782",
+      "#e3d4bd",
+      "#5d5844"
+    ],
+    "cardImage": "assets/img-47-2a0ad0b9b9a3.webp",
+    "tagline": "Warm, earthy and understated",
+    "active": true,
+    "sortOrder": 5
+  },
+  {
+    "id": "blue",
+    "name": "French Blue & Purple",
+    "shortName": "French Blue & Purple",
+    "season": "Cool tones",
+    "description": "French blue, soft periwinkle and muted purple bring a calm, distinctive accent to floral installations.",
+    "heroImage": "assets/img-41-d3a7e99842ac.webp",
+    "swatches": [
+      "#cfd4d5",
+      "#a9c3d9",
+      "#7da6c6",
+      "#8173a1",
+      "#382b50"
+    ],
+    "cardImage": "assets/img-41-d3a7e99842ac.webp",
+    "tagline": "Cool, serene and refined",
+    "active": true,
+    "sortOrder": 6
+  },
+  {
+    "id": "mix",
+    "name": "Mix",
+    "shortName": "Mix",
+    "season": "Colorful",
+    "description": "A flexible mix of seasonal hues for lively installations, colorful celebrations and custom floral combinations.",
+    "heroImage": "assets/img-39-c22b8b192482.webp",
+    "swatches": [
+      "#eee9e0",
+      "#e7bdc0",
+      "#91a17b",
+      "#69283b",
+      "#b86843"
+    ],
+    "cardImage": "assets/img-39-c22b8b192482.webp",
+    "tagline": "Bold, expressive and joyful",
+    "active": true,
+    "sortOrder": 7
+  }
+]
