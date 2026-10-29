@@ -46,7 +46,92 @@
  .navlinks .nav-item:hover .nav-caret{transform:none}
 }
 
-</style></head><body id="top"><div class="announcement">ARTIFICIAL WEDDING &amp; HOME FLORALS <a href="#" data-quote>Wholesale &amp; custom enquiries ↗</a></div>
+
+/* ===== Mobile UX optimizations (appended) ===== */
+@media(max-width:700px){
+  /* 1. Announcement bar: stop truncation, allow wrap gracefully */
+  .announcement{justify-content:center;text-align:center;gap:6px;flex-wrap:wrap;padding:7px 12px;font-size:10px;letter-spacing:.05em;line-height:1.45}
+  .announcement a{font-size:10px;white-space:nowrap}
+
+  /* 3. Feature banners: natural aspect instead of squashed strip */
+  .feature-banner{height:auto}
+  .feature-banner img{height:auto;width:100%;aspect-ratio:16/10;object-fit:cover}
+
+  /* 4. Readable type: raise the worst sub-10px sizes */
+  .announcement,.announcement a{font-size:10px}
+  .product-desc,.product-title,.product-bottom span,.feature-links a,
+  .section-head p,.eyebrow,.pill,.text-link,.muted,
+  .color-card p,.mini-products .product-title{font-size:11px}
+  .crumb{font-size:11px}
+
+  /* 5. Product grid: 2 cols on phones, comfortable gaps */
+  .product-grid{gap:18px 10px}
+
+  /* 6. Tap targets: make small buttons finger-friendly (min 40px) */
+  .quote-icon{width:38px;height:38px;font-size:16px}
+  .small-btn,.show-more,.btn{min-height:38px;display:inline-flex;align-items:center;justify-content:center}
+  .category-pill,.pill[aria-pressed]{min-height:34px;display:inline-flex;align-items:center;padding:7px 12px}
+
+  /* 7. Prevent iOS zoom on input focus (needs >=16px) */
+  input,select,textarea{font-size:16px!important}
+
+  /* 8. Trim excessive vertical rhythm */
+  .section{margin:20px auto 28px}
+  .section-head{margin:16px 0 12px}
+  .feature{margin-top:14px}
+
+  /* 9. Mobile nav drawer: comfortable rows */
+  .navlinks.open{padding:12px 18px 20px}
+  .navlinks>a,.navlinks .nav-parent{font-size:15px;padding:11px 0}
+  .navlinks .subnav a{padding:9px 10px;font-size:13.5px}
+
+  /* 10. Modal fits small screens */
+  .modal,.editor-card{max-height:92svh}
+
+  /* 11. Kill horizontal overflow globally on phones */
+  html,body{overflow-x:hidden;max-width:100%}
+  .wrap,.hero-copy,.section-heading,.announcement{max-width:100%;box-sizing:border-box}
+  img,video,iframe{max-width:100%}
+
+  /* 12. Announcement: hide the long middle text on phones, keep CTA */
+  .announcement .announce-side{display:none}
+  .announcement{flex-wrap:wrap;row-gap:4px}
+  .announcement a{white-space:normal}
+
+  /* 13. Section heading with trailing link: stack instead of overflowing */
+  .section-heading{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px}
+  .section-heading .text-link{font-size:11px}
+
+  /* 14. Long paragraphs wrap */
+  .wrap p,.intro p,.section-head p{overflow-wrap:break-word;word-break:break-word;max-width:100%}
+
+  /* 15. Flex rows that force width */
+  .show-row{flex-wrap:wrap;justify-content:center;gap:8px 12px}
+  .footer-bottom{flex-wrap:wrap;gap:6px}
+}
+
+@media(max-width:390px){
+  .product-grid{gap:14px 8px}
+  .wrap{padding:0 13px}
+}
+
+/* ===== Robust mobile width containment ===== */
+*{box-sizing:border-box}
+@media(max-width:700px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden}
+  .wrap,.home-hero,.hero-slides,.hero-slide,.hero-copy,.announcement,
+  .nav,.section,.section-heading,.home-intro,.footer,.footer-inner{
+    width:100%!important;max-width:100%!important;
+  }
+  .home-intro>p,.section-heading p,.home-intro h2,.hero-copy h1,.hero-copy h2{
+    max-width:100%!important;overflow-wrap:anywhere;
+  }
+  .announcement{display:flex!important;flex-wrap:wrap!important;justify-content:center!important;text-align:center}
+  .announcement>*{max-width:100%}
+  .section-heading{display:block!important}
+  .section-heading .text-link{display:inline-block;margin-top:6px}
+  img{max-width:100%!important;height:auto}
+}</style></head><body id="top"><div class="announcement">ARTIFICIAL WEDDING &amp; HOME FLORALS <a href="#" data-quote>Wholesale &amp; custom enquiries ↗</a></div>
 <header class="header"><nav class="nav"><a class="brand" href="index.html" aria-label="Zhuohui Floral home"><strong>ZHUOHUI</strong><span>F L O R A L</span></a><button class="mobile-toggle" aria-label="Open navigation" aria-expanded="false">☰</button><div class="navlinks"><div class="nav-item has-subnav"><a class="nav-parent" href="products.html">Products <span class="nav-caret" aria-hidden="true">⌄</span></a><div class="subnav" aria-label="Product categories"><a href="products.html">All collections</a><a href="flower-walls.html">Flower walls</a><a href="custom.html">Flower arches</a><div>Wreaths &amp; inspiration</div></div></div><div class="nav-item has-subnav"><a class="nav-parent" href="shop-by-color.html">Shop by Color <span class="nav-caret" aria-hidden="true">⌄</span></a><div class="subnav color-subnav" aria-label="Shop by color"><a href="shop-by-color.html?color=white"><span class="menu-swatch" style="background:#e8ded0"></span>Cloud Dancer White</a><a href="shop-by-color.html?color=blush"><span class="menu-swatch" style="background:#e7bfc2"></span>Blush</a><a href="shop-by-color.html?color=sage"><span class="menu-swatch" style="background:#96a67c"></span>Sage Green</a><a href="shop-by-color.html?color=berry"><span class="menu-swatch" style="background:#922d30"></span>Berry &amp; Burgundy</a><a href="shop-by-color.html?color=terri"><span class="menu-swatch" style="background:#c2764c"></span>Terri</a><a href="shop-by-color.html?color=blue"><span class="menu-swatch" style="background:#7da6c6"></span>French Blue &amp; Purple</a><a href="shop-by-color.html?color=mix"><span class="menu-swatch menu-swatch-mix"></span>Mix</a></div></div><a href="custom.html">Custom Florals</a><a href="about.html">About Us</a></div><button class="btn dark" data-quote>Get a quote <span>↗</span></button></nav></header><main><div class="wrap"><section class="page-intro"><div class="crumb">Home　/　Custom Florals</div><span class="eyebrow">THOUGHTFULLY COORDINATED · BEAUTIFULLY YOURS</span><h1>Not just a flower.<br>Your signature.</h1><p>The right color. The right scale. The right feeling. We help translate your references into artificial floral arrangements made around your project.</p><button class="btn dark" data-quote>Start your custom project ↗</button></section><section class="split section" style="padding-top:25px"><img src="assets/img-27-dd89d8ac5e80.webp" alt="Custom artificial floral arch" loading="lazy"><div class="split-copy"><span class="eyebrow">CUSTOMIZATION OPTIONS</span><h2>Bring your own color inspiration.</h2><p>Discuss the floral mix, arrangement scale and coordinated sets with our team. Requirements are reviewed against your project brief and confirmed with the quotation.</p><div class="specs"><div class="spec"><span>01</span><strong>Color & flower mix</strong></div><div class="spec"><span>02</span><strong>Size & arrangement</strong></div><div class="spec"><span>03</span><strong>Coordinated floral sets</strong></div><div class="spec"><span>04</span><strong>Packaging requirements</strong></div></div><p class="small-note">Customization options are confirmed with your quotation.</p></div></section><section class="section"><span class="eyebrow">FROM INQUIRY TO SHIPMENT</span><h2 class="serif" style="font-size:48px">How to order with Zhuohui.</h2><p style="color:var(--muted);max-width:650px">Here is how a wholesale or custom order moves forward.</p><div class="process-grid"><div class="process"><b>01</b><h3>Send your inquiry</h3><p>Tell us the products, quantities, colors, sizes and delivery destination you need.</p></div><div class="process"><b>02</b><h3>Confirm your quote</h3><p>Review specifications, pricing and sampling options. Agree on the order details before production.</p></div><div class="process"><b>03</b><h3>Production & checks</h3><p>Coordinate production, quality requirements and the agreed schedule for your order.</p></div><div class="process"><b>04</b><h3>Packing & shipment</h3><p>Confirm packing and freight arrangements, with after-sales support for your order.</p></div></div></section></div><section class="cta-band"><h2>Good questions. Clear answers.</h2><p>Have a project in mind? Let’s talk through the details.</p><button class="btn dark" data-quote>Let’s talk ↗</button></section></main><footer class="footer"><div class="wrap"><div class="footer-grid"><div><a class="brand" href="index.html"><strong>ZHUOHUI</strong><span>F L O R A L</span></a><p>Artificial florals for beautiful celebrations and thoughtfully styled spaces.</p></div><div><h4>EXPLORE</h4><div class="footer-links"><a href="products.html">Main products</a><a href="custom.html">Custom florals</a><a href="about.html">About Us</a></div></div><div><h4>LET’S CONNECT</h4><div class="footer-links"><a href="tel:+8613617312076">+86 136 1731 2076</a><a href="mailto:zhouhuiflower.william@gmail.com">zhouhuiflower.william@gmail.com</a><a href="#" data-quote>Start an enquiry ↗</a></div></div><div><h4>FOR YOUR NEXT IDEA</h4><p>Tell us what you’re sourcing. We’ll help you bring it together.</p><button class="btn" data-quote>Start a conversation ↗</button></div></div><div class="footer-bottom"><span>© 2026 Changsha Zhuohui Trading Co., Ltd.</span><span>CHANGSHA, CHINA · MADE FOR THE WORLD</span><a href="#top">Back to top ↑</a></div></div></footer>
 <div class="modal-backdrop" id="quote-modal" role="dialog" aria-modal="true" aria-labelledby="quote-title"><div class="modal"><div class="modal-top"><span class="eyebrow">WHOLESALE &amp; CUSTOM ENQUIRIES</span><button class="close" aria-label="Close enquiry form">×</button></div><h2 id="quote-title">Tell us about your project.</h2><p class="small-note">Share the product, quantity and destination. Your email app will open with the enquiry details ready to send.</p><form id="quote-form"><div class="form-grid"><label class="field">Your name<input name="name" required placeholder="Name"></label><label class="field">Business email<input name="email" type="email" required placeholder="name@company.com"></label><label class="field">Product of interest<select name="product"><option>Flower walls</option><option>Flower arches</option><option>Centerpieces & runners</option><option>Artificial flowers & plants</option><option>Giant flowers</option><option>Event supplies</option><option>Custom project</option></select></label><label class="field">Estimated quantity<input name="quantity" placeholder="e.g. 20 pieces"></label><label class="field full">Project details<textarea name="details" placeholder="Colors, sizes, delivery country, timeline…"></textarea></label></div><p class="notice">Submitting opens your email client; this demo does not store form data on a server.</p><button class="btn dark" type="submit">Prepare email enquiry ↗</button></form></div></div>
 <script>

@@ -64,7 +64,92 @@ main{max-width:1360px;margin:0 auto;padding:28px 32px 76px}.crumb{font-size:11px
  .navlinks .nav-item:hover .nav-caret{transform:none}
 }
 
-</style>
+
+/* ===== Mobile UX optimizations (appended) ===== */
+@media(max-width:700px){
+  /* 1. Announcement bar: stop truncation, allow wrap gracefully */
+  .announcement{justify-content:center;text-align:center;gap:6px;flex-wrap:wrap;padding:7px 12px;font-size:10px;letter-spacing:.05em;line-height:1.45}
+  .announcement a{font-size:10px;white-space:nowrap}
+
+  /* 3. Feature banners: natural aspect instead of squashed strip */
+  .feature-banner{height:auto}
+  .feature-banner img{height:auto;width:100%;aspect-ratio:16/10;object-fit:cover}
+
+  /* 4. Readable type: raise the worst sub-10px sizes */
+  .announcement,.announcement a{font-size:10px}
+  .product-desc,.product-title,.product-bottom span,.feature-links a,
+  .section-head p,.eyebrow,.pill,.text-link,.muted,
+  .color-card p,.mini-products .product-title{font-size:11px}
+  .crumb{font-size:11px}
+
+  /* 5. Product grid: 2 cols on phones, comfortable gaps */
+  .product-grid{gap:18px 10px}
+
+  /* 6. Tap targets: make small buttons finger-friendly (min 40px) */
+  .quote-icon{width:38px;height:38px;font-size:16px}
+  .small-btn,.show-more,.btn{min-height:38px;display:inline-flex;align-items:center;justify-content:center}
+  .category-pill,.pill[aria-pressed]{min-height:34px;display:inline-flex;align-items:center;padding:7px 12px}
+
+  /* 7. Prevent iOS zoom on input focus (needs >=16px) */
+  input,select,textarea{font-size:16px!important}
+
+  /* 8. Trim excessive vertical rhythm */
+  .section{margin:20px auto 28px}
+  .section-head{margin:16px 0 12px}
+  .feature{margin-top:14px}
+
+  /* 9. Mobile nav drawer: comfortable rows */
+  .navlinks.open{padding:12px 18px 20px}
+  .navlinks>a,.navlinks .nav-parent{font-size:15px;padding:11px 0}
+  .navlinks .subnav a{padding:9px 10px;font-size:13.5px}
+
+  /* 10. Modal fits small screens */
+  .modal,.editor-card{max-height:92svh}
+
+  /* 11. Kill horizontal overflow globally on phones */
+  html,body{overflow-x:hidden;max-width:100%}
+  .wrap,.hero-copy,.section-heading,.announcement{max-width:100%;box-sizing:border-box}
+  img,video,iframe{max-width:100%}
+
+  /* 12. Announcement: hide the long middle text on phones, keep CTA */
+  .announcement .announce-side{display:none}
+  .announcement{flex-wrap:wrap;row-gap:4px}
+  .announcement a{white-space:normal}
+
+  /* 13. Section heading with trailing link: stack instead of overflowing */
+  .section-heading{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px}
+  .section-heading .text-link{font-size:11px}
+
+  /* 14. Long paragraphs wrap */
+  .wrap p,.intro p,.section-head p{overflow-wrap:break-word;word-break:break-word;max-width:100%}
+
+  /* 15. Flex rows that force width */
+  .show-row{flex-wrap:wrap;justify-content:center;gap:8px 12px}
+  .footer-bottom{flex-wrap:wrap;gap:6px}
+}
+
+@media(max-width:390px){
+  .product-grid{gap:14px 8px}
+  .wrap{padding:0 13px}
+}
+
+/* ===== Robust mobile width containment ===== */
+*{box-sizing:border-box}
+@media(max-width:700px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden}
+  .wrap,.home-hero,.hero-slides,.hero-slide,.hero-copy,.announcement,
+  .nav,.section,.section-heading,.home-intro,.footer,.footer-inner{
+    width:100%!important;max-width:100%!important;
+  }
+  .home-intro>p,.section-heading p,.home-intro h2,.hero-copy h1,.hero-copy h2{
+    max-width:100%!important;overflow-wrap:anywhere;
+  }
+  .announcement{display:flex!important;flex-wrap:wrap!important;justify-content:center!important;text-align:center}
+  .announcement>*{max-width:100%}
+  .section-heading{display:block!important}
+  .section-heading .text-link{display:inline-block;margin-top:6px}
+  img{max-width:100%!important;height:auto}
+}</style>
 </head>
 <body id="top">
 <div class="announcement"><span>ARTIFICIAL WEDDING &amp; HOME FLORALS</span><span>Wholesale collections. Made-to-order possibilities.</span><a href="https://www.alibaba.com/" target="_blank" rel="noopener">Visit our Alibaba store ↗</a></div>
