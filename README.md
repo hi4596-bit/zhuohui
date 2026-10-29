@@ -24,6 +24,7 @@ zhuohui-admin-project/
 │  ├─ admin.js                   # 管理交互
 │  └─ admin_server.py            # 本地 API（只监听 127.0.0.1）
 ├─ .github/workflows/pages.yml   # 自动发布网站目录
+├─ .gitattributes                # 强制 .bat 用 CRLF 换行
 ├─ run-admin.bat                 # 启动后台
 └─ git-publish.bat               # Git 提交并推送
 ```
@@ -43,13 +44,38 @@ zhuohui-admin-project/
 
 本项目的 GitHub Actions 工作流只发布 `zhuohui-floral-site/`，本地 Python 服务与后台源文件不会作为网站内容部署。
 
-1. 把整个 `zhuohui-admin-project` 文件夹内容放进一个 Git 仓库根目录（保留 `.github/` 和 `zhuohui-floral-site/` 文件夹）。
-2. 在 GitHub 仓库 Settings → Pages 中选择 **GitHub Actions** 作为发布来源。
-3. 确认默认分支为 `main`。如果你的默认分支不是 `main`，请编辑 `.github/workflows/pages.yml` 的 `branches` 设置。
-4. 本地运行 `git-publish.bat`，输入提交说明。脚本会执行 `git add .`、`git commit` 和 `git push`。
-5. 在 GitHub 仓库 Actions 标签查看部署状态。成功后，Pages 发布的是 `zhuohui-floral-site/` 内的静态文件。
+仓库地址：<https://github.com/hi4596-bit/zhuohui.git>（默认分支 `main`）
 
-第一次使用前，必须先配置 Git 远程仓库并完成一次正常的 `git push`。脚本不会帮你创建 GitHub 仓库或登录账号。
+### 必须手动完成的唯一设置
+
+GitHub 的 Pages 发布来源只有仓库管理员能改，脚本无法代劳：
+
+1. 打开 <https://github.com/hi4596-bit/zhuohui/settings/pages>
+2. 把 **Build and deployment → Source** 从 **Deploy from a branch** 改为 **GitHub Actions**
+3. 保存后会重新触发一次部署，约 1-2 分钟后生效
+
+> **为什么要改**：如果保持 "Deploy from a branch"（`main` / `/ (root)`），GitHub 会用 Jekyll 把仓库根目录当网站发布，结果是 README 被渲染成首页、`data/*.json` 和图片返回 404。改成 **GitHub Actions** 后，网站根目录就是 `zhuohui-floral-site/`，访问地址 `https://hi4596-bit.github.io/zhuohui/` 才是真实前台。
+
+### 日常发布流程
+
+1. 双击 `run-admin.bat` 打开后台，改内容并保存（写入 `zhuohui-floral-site/data/*.json`）。
+2. 双击 `git-publish.bat`，输入提交说明。脚本会 `git add -A`、`git commit`、`git push`。
+3. 在 <https://github.com/hi4596-bit/zhuohui/actions> 查看部署状态。
+4. 成功后刷新 `https://hi4596-bit.github.io/zhuohui/`。
+
+### 换一台电脑同步
+
+```bat
+git clone https://github.com/hi4596-bit/zhuohui.git
+```
+
+克隆后双击 `run-admin.bat` 即可继续使用（只需装 Python 3）。
+
+### 已修复的环境问题：.bat 换行符
+
+原始压缩包里的 `run-admin.bat` / `git-publish.bat` 是 **LF（Unix）换行**，而 Windows `cmd.exe` 只认 **CRLF**，所以双击会一闪而过或报 "不是内部或外部命令"。
+
+现已改为 CRLF，并新增 `.gitattributes` 强制 `*.bat text eol=crlf`，以后从仓库重新克隆也不会再坏。
 
 ## 数据结构概要
 
