@@ -21,18 +21,54 @@ main{max-width:1360px;margin:0 auto;padding:28px 32px 76px}.crumb{font-size:11px
 .modal-backdrop{position:fixed;inset:0;background:#152017a6;z-index:80;display:none;align-items:center;justify-content:center;padding:18px}.modal-backdrop.open{display:flex}.modal{background:#faf9f5;width:min(560px,100%);max-height:90vh;overflow:auto;padding:28px}.modal-head{display:flex;justify-content:space-between;align-items:center}.modal h2{font:34px var(--serif);font-weight:400;margin:10px 0}.modal-close{border:0;background:transparent;font-size:26px}.modal p{font-size:12px;color:#737971}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.field{display:grid;gap:5px;font-size:11px}.field.full{grid-column:1/-1}.field input,.field textarea,.field select{width:100%;padding:11px;border:1px solid #d8d9d0;background:white}.field textarea{min-height:80px}.image-viewer{position:fixed;inset:0;background:#101710ed;z-index:100;display:none;align-items:center;justify-content:center;padding:24px}.image-viewer.open{display:flex}.image-viewer img{max-width:94vw;max-height:90vh;width:auto;object-fit:contain}.viewer-close{position:absolute;top:14px;right:20px;color:white;background:transparent;border:0;font-size:34px}
 @media(max-width:900px){.announcement{padding:0 18px;font-size:8px}.announcement span:nth-child(2){display:none}.nav{padding:12px 20px;min-height:64px;gap:12px}.brand{min-width:0;margin-right:auto}.brand-mark{font-size:24px}.brand-name strong{font-size:15px}.navlinks{display:none;position:absolute;top:100%;left:0;right:0;background:#faf9f5;padding:14px 22px 22px;flex-direction:column;align-items:stretch;gap:4px;border-bottom:1px solid var(--line)}.navlinks.open{display:flex}.navlinks a{padding:10px 0}.nav>.quote-btn{display:none}.mobile-toggle{display:block}main{padding:22px 22px 58px}.product-layout{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:26px}.product-title{font-size:clamp(25px,3vw,32px)}.main-photo{aspect-ratio:.86/1}.thumb{flex-basis:62px;width:62px;height:62px}.addon{grid-template-columns:20px 42px minmax(0,1fr);gap:9px;padding:12px}.addon img{width:42px;height:58px}.related-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.footer-grid{grid-template-columns:1fr 1fr;gap:26px}}
 @media(max-width:640px){.announcement{justify-content:center}.announcement span:first-child{display:none}.announcement a{font-size:8px}.brand-mark{font-size:23px}.nav{min-height:60px}.navlinks{font-size:13px}main{padding:18px 16px 48px}.crumb{font-size:10px;margin-bottom:15px}.product-layout{grid-template-columns:1fr;gap:26px}.main-photo{aspect-ratio:.94/1;max-height:620px}.thumb-row{margin-top:12px;gap:4px}.thumb{flex-basis:62px;width:62px;height:62px}.product-title{font-size:29px;line-height:1.17}.rating-row{margin-bottom:18px}.price-row{margin-bottom:22px}.price{font-size:23px}.addon{grid-template-columns:20px 48px minmax(0,1fr)}.addon img{width:48px;height:60px}.addon-title{font-size:12px}.addon-sub{font-size:11px}.related{margin-top:38px;padding-top:32px}.related h2{font-size:28px}.related-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 12px}.related-card h3{font-size:16px}.footer{padding-top:36px}.footer-inner{padding:0 20px}.footer-grid{grid-template-columns:1fr 1fr;gap:24px 16px}.footer-grid>div:first-child{grid-column:1/-1}.footer-bottom{flex-direction:column;gap:8px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.modal{padding:22px}.spec-list{grid-template-columns:1fr 1fr}}
+
+/* Products secondary navigation */
+.nav-item{position:relative;display:flex;align-items:center}
+.nav-parent{display:flex;align-items:center;gap:7px;padding:8px 0;border-bottom:1px solid transparent}
+.nav-caret{font-size:12px;transition:transform .18s ease}
+.nav-item:hover .nav-caret,.nav-item:focus-within .nav-caret{transform:rotate(180deg)}
+.subnav{display:none;position:absolute;left:-18px;top:calc(100% + 10px);min-width:205px;padding:10px;background:var(--paper);border:1px solid var(--line);box-shadow:0 12px 30px #1b2b2018;z-index:40}
+.subnav:before{content:"";position:absolute;left:0;right:0;top:-11px;height:12px}
+.subnav a{display:block;padding:10px 12px;font-size:12px;white-space:nowrap;border-bottom:0!important}
+.subnav a:hover,.subnav a:focus{background:var(--sage)}
+.nav-item:hover .subnav,.nav-item:focus-within .subnav{display:block}
+@media(max-width:850px){
+ .navlinks .nav-item{display:block;width:100%}
+ .navlinks .nav-parent{display:flex;justify-content:space-between}
+ .navlinks .subnav{display:grid;position:static;min-width:0;padding:4px 0 8px 12px;border:0;box-shadow:none;background:transparent}
+ .navlinks .subnav:before{display:none}
+ .navlinks .subnav a{padding:8px 10px;white-space:normal}
+ .navlinks .nav-item:hover .nav-caret{transform:none}
+}
+
+
+/* Primary Shop by Color navigation with palette submenu */
+.nav-item{position:relative;display:flex;align-items:center}
+.nav-parent{display:flex;align-items:center;gap:7px;padding:8px 0;border-bottom:1px solid transparent}
+.nav-caret{font-size:12px;transition:transform .18s ease}
+.nav-item:hover .nav-caret,.nav-item:focus-within .nav-caret{transform:rotate(180deg)}
+.subnav{display:none;position:absolute;left:-18px;top:calc(100% + 10px);min-width:215px;padding:9px;background:var(--paper,#f8f7f2);border:1px solid var(--line,#d8d9d0);box-shadow:0 12px 30px #1b2b2018;z-index:40}
+.subnav:before{content:"";position:absolute;left:0;right:0;top:-11px;height:12px}
+.subnav a{display:flex;align-items:center;gap:9px;padding:10px 12px;font-size:12px;white-space:nowrap;border-bottom:0!important}
+.subnav a:hover,.subnav a:focus{background:var(--sage,#e8ece4)}
+.nav-item:hover .subnav,.nav-item:focus-within .subnav{display:block}
+.color-subnav{min-width:245px}
+.menu-swatch{display:inline-block;flex:0 0 13px;width:13px;height:13px;border:1px solid #00000012;border-radius:50%}
+.menu-swatch-mix{background:linear-gradient(90deg,#eee9e0,#e7bdc0,#91a17b,#69283b,#b86843,#7f9ec8,#43314f)}
+@media(max-width:850px){
+ .navlinks .nav-item{display:block;width:100%}
+ .navlinks .nav-parent{display:flex;justify-content:space-between}
+ .navlinks .subnav{display:grid;position:static;min-width:0;padding:4px 0 8px 12px;border:0;box-shadow:none;background:transparent}
+ .navlinks .subnav:before{display:none}
+ .navlinks .subnav a{padding:8px 10px;white-space:normal}
+ .navlinks .nav-item:hover .nav-caret{transform:none}
+}
+
 </style>
 </head>
 <body id="top">
 <div class="announcement"><span>ARTIFICIAL WEDDING &amp; HOME FLORALS</span><span>Wholesale collections. Made-to-order possibilities.</span><a href="https://www.alibaba.com/" target="_blank" rel="noopener">Visit our Alibaba store ↗</a></div>
-<header class="header">
-  <nav class="nav" aria-label="Main navigation">
-    <a class="brand" href="index.html" aria-label="Zhuohui Floral home"><span class="brand-mark">ZH</span><span class="brand-name"><strong>ZHUOHUI</strong><span>F L O R A L</span></span></a>
-    <button class="mobile-toggle" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
-    <div class="navlinks"><a href="products.html">Products</a><a href="inspiration.html">Inspiration</a><a href="custom.html">Custom Florals</a><a href="about.html">About Us</a></div>
-    <button class="quote-btn" type="button" data-quote>Get a quote&nbsp; ↗</button>
-  </nav>
-</header>
+<header class="header"><nav class="nav"><a class="brand" href="index.html" aria-label="Zhuohui Floral home"><strong>ZHUOHUI</strong><span>F L O R A L</span></a><button class="mobile-toggle" aria-label="Open navigation" aria-expanded="false">☰</button><div class="navlinks"><div class="nav-item has-subnav"><a class="nav-parent" href="products.html">Products <span class="nav-caret" aria-hidden="true">⌄</span></a><div class="subnav" aria-label="Product categories"><a href="products.html">All collections</a><a href="flower-walls.html">Flower walls</a><a href="custom.html">Flower arches</a><a href="inspiration.html">Wreaths &amp; inspiration</a></div></div><div class="nav-item has-subnav"><a class="nav-parent" href="shop-by-color.html">Shop by Color <span class="nav-caret" aria-hidden="true">⌄</span></a><div class="subnav color-subnav" aria-label="Shop by color"><a href="shop-by-color.html?color=white"><span class="menu-swatch" style="background:#e8ded0"></span>Cloud Dancer White</a><a href="shop-by-color.html?color=blush"><span class="menu-swatch" style="background:#e7bfc2"></span>Blush</a><a href="shop-by-color.html?color=sage"><span class="menu-swatch" style="background:#96a67c"></span>Sage Green</a><a href="shop-by-color.html?color=berry"><span class="menu-swatch" style="background:#922d30"></span>Berry &amp; Burgundy</a><a href="shop-by-color.html?color=terri"><span class="menu-swatch" style="background:#c2764c"></span>Terri</a><a href="shop-by-color.html?color=blue"><span class="menu-swatch" style="background:#7da6c6"></span>French Blue &amp; Purple</a><a href="shop-by-color.html?color=mix"><span class="menu-swatch menu-swatch-mix"></span>Mix</a></div></div><a href="inspiration.html">Inspiration</a><a href="custom.html">Custom Florals</a><a href="about.html">About Us</a></div><button class="btn dark" data-quote>Get a quote <span>↗</span></button></nav></header>
 <main>
   <nav class="crumb" aria-label="Breadcrumb"><a href="index.html">Home</a><span>›</span><a href="products.html">Products</a><span>›</span><a href="flower-walls.html">Flower walls</a><span>›</span><span aria-current="page">Milan Green Flower Wall</span></nav>
   <section class="product-layout" aria-label="Product details">

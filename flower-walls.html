@@ -67,8 +67,51 @@
 .recent-copy p{font-size:11px;color:var(--muted);max-width:320px;margin:0 0 12px}
 @media(max-width:1000px){.catalog-shell{width:min(100% - 40px,1120px)}.catalog-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:24px 14px}.filter-row{grid-template-columns:100px minmax(0,1fr)}}
 @media(max-width:680px){.catalog-announcement{grid-template-columns:1fr auto;padding:7px 14px;font-size:8px}.catalog-announcement span:nth-child(2){display:none}.catalog-shell{width:calc(100% - 32px)}.catalog-shell>.crumb{padding-top:18px}.catalog-heading{grid-template-columns:1fr;gap:8px;padding:17px 18px}.catalog-heading h1{font-size:27px}.catalog-heading p{justify-self:start;max-width:100%;font-size:11px}.catalog-filters{gap:12px;margin-bottom:18px}.filter-row{grid-template-columns:1fr;gap:5px}.filter-row-label{padding:0;font-size:11px}.filter-chips{gap:6px}.filter-chip{font-size:10px;min-height:30px;padding:7px 10px}.price-filter-note{width:100%;margin:2px 0 0}.catalog-tools{gap:12px;flex-wrap:wrap;margin-bottom:18px}.catalog-count{width:auto;margin-bottom:0}.catalog-tools-spacer{flex:1}.catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 13px}.catalog-title{font-size:12px;min-height:32px}.catalog-card p{font-size:10px}.catalog-card-bottom{font-size:10px}.catalog-add{font-size:10px}.catalog-pagination{padding:38px 0 48px}.recently-viewed{padding-bottom:48px}.recent-panel{grid-template-columns:112px 1fr;min-height:150px}.recent-image img{min-height:150px}.recent-copy{padding:16px}.recent-copy h3{font-size:18px}.recent-copy p{font-size:10px}}
+
+/* Products secondary navigation */
+.nav-item{position:relative;display:flex;align-items:center}
+.nav-parent{display:flex;align-items:center;gap:7px;padding:8px 0;border-bottom:1px solid transparent}
+.nav-caret{font-size:12px;transition:transform .18s ease}
+.nav-item:hover .nav-caret,.nav-item:focus-within .nav-caret{transform:rotate(180deg)}
+.subnav{display:none;position:absolute;left:-18px;top:calc(100% + 10px);min-width:205px;padding:10px;background:var(--paper);border:1px solid var(--line);box-shadow:0 12px 30px #1b2b2018;z-index:40}
+.subnav:before{content:"";position:absolute;left:0;right:0;top:-11px;height:12px}
+.subnav a{display:block;padding:10px 12px;font-size:12px;white-space:nowrap;border-bottom:0!important}
+.subnav a:hover,.subnav a:focus{background:var(--sage)}
+.nav-item:hover .subnav,.nav-item:focus-within .subnav{display:block}
+@media(max-width:850px){
+ .navlinks .nav-item{display:block;width:100%}
+ .navlinks .nav-parent{display:flex;justify-content:space-between}
+ .navlinks .subnav{display:grid;position:static;min-width:0;padding:4px 0 8px 12px;border:0;box-shadow:none;background:transparent}
+ .navlinks .subnav:before{display:none}
+ .navlinks .subnav a{padding:8px 10px;white-space:normal}
+ .navlinks .nav-item:hover .nav-caret{transform:none}
+}
+
+
+/* Primary Shop by Color navigation with palette submenu */
+.nav-item{position:relative;display:flex;align-items:center}
+.nav-parent{display:flex;align-items:center;gap:7px;padding:8px 0;border-bottom:1px solid transparent}
+.nav-caret{font-size:12px;transition:transform .18s ease}
+.nav-item:hover .nav-caret,.nav-item:focus-within .nav-caret{transform:rotate(180deg)}
+.subnav{display:none;position:absolute;left:-18px;top:calc(100% + 10px);min-width:215px;padding:9px;background:var(--paper,#f8f7f2);border:1px solid var(--line,#d8d9d0);box-shadow:0 12px 30px #1b2b2018;z-index:40}
+.subnav:before{content:"";position:absolute;left:0;right:0;top:-11px;height:12px}
+.subnav a{display:flex;align-items:center;gap:9px;padding:10px 12px;font-size:12px;white-space:nowrap;border-bottom:0!important}
+.subnav a:hover,.subnav a:focus{background:var(--sage,#e8ece4)}
+.nav-item:hover .subnav,.nav-item:focus-within .subnav{display:block}
+.color-subnav{min-width:245px}
+.menu-swatch{display:inline-block;flex:0 0 13px;width:13px;height:13px;border:1px solid #00000012;border-radius:50%}
+.menu-swatch-mix{background:linear-gradient(90deg,#eee9e0,#e7bdc0,#91a17b,#69283b,#b86843,#7f9ec8,#43314f)}
+@media(max-width:850px){
+ .navlinks .nav-item{display:block;width:100%}
+ .navlinks .nav-parent{display:flex;justify-content:space-between}
+ .navlinks .subnav{display:grid;position:static;min-width:0;padding:4px 0 8px 12px;border:0;box-shadow:none;background:transparent}
+ .navlinks .subnav:before{display:none}
+ .navlinks .subnav a{padding:8px 10px;white-space:normal}
+ .navlinks .nav-item:hover .nav-caret{transform:none}
+}
+
 </style></head><body id="top"><div class="announcement catalog-announcement"><span>ARTIFICIAL WEDDING &amp; HOME FLORALS</span><span>Wholesale collections. Made-to-order possibilities.</span><a href="#" data-quote>Wholesale &amp; custom enquiries ↗</a></div>
-<header class="header"><nav class="nav"><a class="brand" href="index.html" aria-label="Zhuohui Floral home"><strong>ZHUOHUI</strong><span>F L O R A L</span></a><button class="mobile-toggle" aria-label="Open navigation" aria-expanded="false">☰</button><div class="navlinks"><a class="active" href="products.html">Products</a><a class="" href="inspiration.html">Inspiration</a><a class="" href="custom.html">Custom Florals</a><a class="" href="about.html">About Us</a></div><button class="btn dark" data-quote>Get a quote <span>↗</span></button></nav></header><main id="top" class="catalog-page">
+<header class="header"><nav class="nav"><a class="brand" href="index.html" aria-label="Zhuohui Floral home"><strong>ZHUOHUI</strong><span>F L O R A L</span></a><button class="mobile-toggle" aria-label="Open navigation" aria-expanded="false">☰</button><div class="navlinks"><div class="nav-item has-subnav"><a class="nav-parent" href="products.html">Products <span class="nav-caret" aria-hidden="true">⌄</span></a><div class="subnav" aria-label="Product categories"><a href="products.html">All collections</a><a href="flower-walls.html">Flower walls</a><a href="custom.html">Flower arches</a><a href="inspiration.html">Wreaths &amp; inspiration</a></div></div><div class="nav-item has-subnav"><a class="nav-parent" href="shop-by-color.html">Shop by Color <span class="nav-caret" aria-hidden="true">⌄</span></a><div class="subnav color-subnav" aria-label="Shop by color"><a href="shop-by-color.html?color=white"><span class="menu-swatch" style="background:#e8ded0"></span>Cloud Dancer White</a><a href="shop-by-color.html?color=blush"><span class="menu-swatch" style="background:#e7bfc2"></span>Blush</a><a href="shop-by-color.html?color=sage"><span class="menu-swatch" style="background:#96a67c"></span>Sage Green</a><a href="shop-by-color.html?color=berry"><span class="menu-swatch" style="background:#922d30"></span>Berry &amp; Burgundy</a><a href="shop-by-color.html?color=terri"><span class="menu-swatch" style="background:#c2764c"></span>Terri</a><a href="shop-by-color.html?color=blue"><span class="menu-swatch" style="background:#7da6c6"></span>French Blue &amp; Purple</a><a href="shop-by-color.html?color=mix"><span class="menu-swatch menu-swatch-mix"></span>Mix</a></div></div><a href="inspiration.html">Inspiration</a><a href="custom.html">Custom Florals</a><a href="about.html">About Us</a></div><button class="btn dark" data-quote>Get a quote <span>↗</span></button></nav></header><main id="top" class="catalog-page">
   <div class="catalog-shell">
     <nav class="crumb" aria-label="Breadcrumb"><a href="index.html">Home</a><span>/</span><a href="products.html">Products</a><span>/</span><span aria-current="page">Flower walls</span></nav>
 
