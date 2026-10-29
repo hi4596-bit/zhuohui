@@ -14,7 +14,28 @@
 .catalog-heading .eyebrow{display:none}
 .catalog-heading h1{font:400 30px/1.12 var(--serif);letter-spacing:-.025em;margin:0}
 .catalog-heading p{font-size:11px;line-height:1.5;color:#74786f;max-width:310px;margin:0;justify-self:end}
-.catalog-tools{display:flex;align-items:center;gap:20px;margin:0 0 25px;font-size:10px;color:#777d73;min-height:24px}
+.catalog-filters{display:grid;gap:10px;margin:0 0 22px}
+.filter-row{display:grid;grid-template-columns:150px minmax(0,1fr);align-items:start;gap:12px}
+.filter-row-label{font-size:12px;color:#777d73;padding:9px 0 0}
+.filter-chips{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
+.filter-chip{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:32px;padding:7px 12px;border:0;border-radius:999px;background:#f2f2f0;color:#27372c;font-size:11px;white-space:nowrap;cursor:pointer;transition:background .18s,color .18s,opacity .18s}
+.filter-chip:hover:not(:disabled){background:#e7e9e4}
+.filter-chip.active{background:#d2d5d8;color:#17231b}
+.filter-chip:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.filter-chip small{font-size:10px;color:#8a8e85}
+.filter-chip.active small{color:#4f594f}
+.filter-chip:disabled{cursor:not-allowed;opacity:.48}
+.swatch{display:inline-block;width:11px;height:11px;border-radius:50%;border:1px solid #00000016;flex:0 0 11px}
+.swatch-white{background:#f8f7f2;border-color:#d8d5ca}
+.swatch-blush{background:#e8c7c9}
+.swatch-sage{background:#8d9b7b}
+.swatch-berry{background:#7e2938}
+.swatch-terri{background:#bd6c4c}
+.swatch-blue{background:#8ea9d8}
+.swatch-multi{background:conic-gradient(#d36c56 0 25%,#8da078 0 50%,#8da9d8 0 75%,#e5c4c6 0)}
+.price-filter-note{font-size:10px;color:#858a80;align-self:center;margin-left:3px}
+.catalog-tools-spacer{flex:1}
+.catalog-tools{display:flex;align-items:center;gap:20px;margin:0 0 18px;font-size:10px;color:#777d73;min-height:24px}
 .catalog-count{margin-right:2px}
 .tool-label{display:flex;align-items:center;gap:7px;white-space:nowrap}
 .tool-label select{appearance:none;border:0;background:transparent;color:#27372c;font-size:10px;padding:4px 17px 4px 2px;cursor:pointer;background-image:linear-gradient(45deg,transparent 50%,#657064 50%),linear-gradient(135deg,#657064 50%,transparent 50%);background-position:calc(100% - 6px) 8px,calc(100% - 2px) 8px;background-size:4px 4px,4px 4px;background-repeat:no-repeat}
@@ -44,8 +65,8 @@
 .recent-copy{padding:25px 28px;align-self:center}
 .recent-copy h3{font-size:23px;font-weight:400;margin:8px 0}
 .recent-copy p{font-size:11px;color:var(--muted);max-width:320px;margin:0 0 12px}
-@media(max-width:1000px){.catalog-shell{width:min(100% - 40px,920px)}.catalog-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:24px 14px}}
-@media(max-width:680px){.catalog-announcement{grid-template-columns:1fr auto;padding:7px 14px;font-size:8px}.catalog-announcement span:nth-child(2){display:none}.catalog-shell{width:calc(100% - 32px)}.catalog-shell>.crumb{padding-top:18px}.catalog-heading{grid-template-columns:1fr;gap:8px;padding:17px 18px}.catalog-heading h1{font-size:27px}.catalog-heading p{justify-self:start;max-width:100%;font-size:11px}.catalog-tools{gap:12px;flex-wrap:wrap;margin-bottom:18px}.catalog-count{width:100%;margin-bottom:0}.catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 13px}.catalog-title{font-size:12px;min-height:32px}.catalog-card p{font-size:10px}.catalog-card-bottom{font-size:10px}.catalog-add{font-size:10px}.catalog-pagination{padding:38px 0 48px}.recently-viewed{padding-bottom:48px}.recent-panel{grid-template-columns:112px 1fr;min-height:150px}.recent-image img{min-height:150px}.recent-copy{padding:16px}.recent-copy h3{font-size:18px}.recent-copy p{font-size:10px}}
+@media(max-width:1000px){.catalog-shell{width:min(100% - 40px,1120px)}.catalog-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:24px 14px}.filter-row{grid-template-columns:100px minmax(0,1fr)}}
+@media(max-width:680px){.catalog-announcement{grid-template-columns:1fr auto;padding:7px 14px;font-size:8px}.catalog-announcement span:nth-child(2){display:none}.catalog-shell{width:calc(100% - 32px)}.catalog-shell>.crumb{padding-top:18px}.catalog-heading{grid-template-columns:1fr;gap:8px;padding:17px 18px}.catalog-heading h1{font-size:27px}.catalog-heading p{justify-self:start;max-width:100%;font-size:11px}.catalog-filters{gap:12px;margin-bottom:18px}.filter-row{grid-template-columns:1fr;gap:5px}.filter-row-label{padding:0;font-size:11px}.filter-chips{gap:6px}.filter-chip{font-size:10px;min-height:30px;padding:7px 10px}.price-filter-note{width:100%;margin:2px 0 0}.catalog-tools{gap:12px;flex-wrap:wrap;margin-bottom:18px}.catalog-count{width:auto;margin-bottom:0}.catalog-tools-spacer{flex:1}.catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 13px}.catalog-title{font-size:12px;min-height:32px}.catalog-card p{font-size:10px}.catalog-card-bottom{font-size:10px}.catalog-add{font-size:10px}.catalog-pagination{padding:38px 0 48px}.recently-viewed{padding-bottom:48px}.recent-panel{grid-template-columns:112px 1fr;min-height:150px}.recent-image img{min-height:150px}.recent-copy{padding:16px}.recent-copy h3{font-size:18px}.recent-copy p{font-size:10px}}
 </style></head><body id="top"><div class="announcement catalog-announcement"><span>ARTIFICIAL WEDDING &amp; HOME FLORALS</span><span>Wholesale collections. Made-to-order possibilities.</span><a href="#" data-quote>Wholesale &amp; custom enquiries ↗</a></div>
 <header class="header"><nav class="nav"><a class="brand" href="index.html" aria-label="Zhuohui Floral home"><strong>ZHUOHUI</strong><span>F L O R A L</span></a><button class="mobile-toggle" aria-label="Open navigation" aria-expanded="false">☰</button><div class="navlinks"><a class="active" href="products.html">Products</a><a class="" href="inspiration.html">Inspiration</a><a class="" href="custom.html">Custom Florals</a><a class="" href="about.html">About Us</a></div><button class="btn dark" data-quote>Get a quote <span>↗</span></button></nav></header><main id="top" class="catalog-page">
   <div class="catalog-shell">
@@ -56,17 +77,36 @@
       <p>Our densest floral builds, layered five to seven deep for a sculptural, full-bodied surface. Statement backdrops for weddings and premium events.</p>
     </section>
 
-    <section class="catalog-tools" aria-label="Product filters and sorting">
+    <section class="catalog-filters" aria-label="Filter flower wall products">
+      <div class="filter-row color-filter-row">
+        <div class="filter-row-label">Color</div>
+        <div class="filter-chips" id="color-filters" role="group" aria-label="Filter by color">
+          <button class="filter-chip active" type="button" data-color-filter="all" aria-pressed="true">All</button>
+          <button class="filter-chip" type="button" data-color-filter="white" aria-pressed="false"><i class="swatch swatch-white"></i>Cloud Dancer White <small>1</small></button>
+          <button class="filter-chip" type="button" data-color-filter="blush" aria-pressed="false"><i class="swatch swatch-blush"></i>Blush <small>0</small></button>
+          <button class="filter-chip" type="button" data-color-filter="sage" aria-pressed="false"><i class="swatch swatch-sage"></i>Sage Green <small>1</small></button>
+          <button class="filter-chip" type="button" data-color-filter="berry" aria-pressed="false"><i class="swatch swatch-berry"></i>Berry &amp; Burgundy <small>2</small></button>
+          <button class="filter-chip" type="button" data-color-filter="terri" aria-pressed="false"><i class="swatch swatch-terri"></i>Terri <small>0</small></button>
+          <button class="filter-chip" type="button" data-color-filter="blue" aria-pressed="false"><i class="swatch swatch-blue"></i>Blue <small>1</small></button>
+          <button class="filter-chip" type="button" data-color-filter="multi" aria-pressed="false"><i class="swatch swatch-multi"></i>Multicolor <small>1</small></button>
+        </div>
+      </div>
+      <div class="filter-row price-filter-row">
+        <div class="filter-row-label">Price</div>
+        <div class="filter-chips" id="price-filters" role="group" aria-label="Filter by price">
+          <button class="filter-chip active" type="button" data-price-filter="all" aria-pressed="true">All</button>
+          <button class="filter-chip price-chip" type="button" data-price-filter="under50" disabled title="Wholesale prices are confirmed by quotation">Under $50</button>
+          <button class="filter-chip price-chip" type="button" data-price-filter="50-99" disabled title="Wholesale prices are confirmed by quotation">$50 – $99</button>
+          <button class="filter-chip price-chip" type="button" data-price-filter="100-149" disabled title="Wholesale prices are confirmed by quotation">$100 – $149</button>
+          <button class="filter-chip price-chip" type="button" data-price-filter="150plus" disabled title="Wholesale prices are confirmed by quotation">$150 and above</button>
+          <span class="price-filter-note" id="price-filter-note">Wholesale prices are available by quotation.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="catalog-tools" aria-label="Product count and sorting">
       <span class="catalog-count" id="catalog-count">6 styles</span>
-      <label class="tool-label">Filter
-        <select id="catalog-filter" aria-label="Filter flower walls">
-          <option value="all">All styles</option>
-          <option value="white">White &amp; cream</option>
-          <option value="red">Red</option>
-          <option value="green">Greenery</option>
-          <option value="color">Colorful</option>
-        </select>
-      </label>
+      <span class="catalog-tools-spacer"></span>
       <label class="tool-label">Sort by
         <select id="catalog-sort" aria-label="Sort products">
           <option value="featured">Featured</option>
@@ -77,23 +117,23 @@
     </section>
 
     <section class="catalog-grid" id="catalog-grid" aria-label="Flower wall products">
-      <article class="catalog-card" data-color="red" data-name="Christmas red rose floral wall" data-image="assets/img-33-8c9ac0b12e22.webp">
+      <article class="catalog-card" data-color="berry" data-name="Christmas red rose floral wall" data-image="assets/img-33-8c9ac0b12e22.webp">
         <a class="catalog-image" href="product-detail.html" data-view-product><img src="assets/img-33-8c9ac0b12e22.webp" alt="Red rose and greenery artificial flower wall" loading="eager" fetchpriority="high"></a>
         <div class="catalog-card-body"><a class="catalog-title" href="product-detail.html" data-view-product>Christmas Red Rose Floral Wall</a><p>Layered roses · Custom palette</p><div class="catalog-card-bottom"><span>Wholesale enquiry</span><button type="button" class="catalog-add" data-enquiry-product="Christmas Red Rose Floral Wall">Add to enquiry <span>↗</span></button></div></div>
       </article>
-      <article class="catalog-card" data-color="green" data-name="Tropical green foliage wall" data-image="assets/img-35-62e39a4f2cce.webp">
+      <article class="catalog-card" data-color="sage" data-name="Tropical green foliage wall" data-image="assets/img-35-62e39a4f2cce.webp">
         <a class="catalog-image" href="product-detail.html" data-view-product><img src="assets/img-35-62e39a4f2cce.webp" alt="Green tropical foliage artificial flower wall" loading="lazy"></a>
         <div class="catalog-card-body"><a class="catalog-title" href="product-detail.html" data-view-product>Tropical Green Foliage Wall</a><p>Leaf texture · Indoor &amp; outdoor</p><div class="catalog-card-bottom"><span>Wholesale enquiry</span><button type="button" class="catalog-add" data-enquiry-product="Tropical Green Foliage Wall">Add to enquiry <span>↗</span></button></div></div>
       </article>
-      <article class="catalog-card" data-color="red" data-name="Classic red rose flower wall" data-image="assets/img-37-364e1919d2eb.webp">
+      <article class="catalog-card" data-color="berry" data-name="Classic red rose flower wall" data-image="assets/img-37-364e1919d2eb.webp">
         <a class="catalog-image" href="product-detail.html" data-view-product><img src="assets/img-37-364e1919d2eb.webp" alt="Dense red rose artificial flower wall" loading="lazy"></a>
         <div class="catalog-card-body"><a class="catalog-title" href="product-detail.html" data-view-product>Classic Red Rose Flower Wall</a><p>Full coverage · Event backdrop</p><div class="catalog-card-bottom"><span>Wholesale enquiry</span><button type="button" class="catalog-add" data-enquiry-product="Classic Red Rose Flower Wall">Add to enquiry <span>↗</span></button></div></div>
       </article>
-      <article class="catalog-card" data-color="color" data-name="Multicolor silk flower wall" data-image="assets/img-39-c22b8b192482.webp">
+      <article class="catalog-card" data-color="multi" data-name="Multicolor silk flower wall" data-image="assets/img-39-c22b8b192482.webp">
         <a class="catalog-image" href="product-detail.html" data-view-product><img src="assets/img-39-c22b8b192482.webp" alt="Multicolor artificial silk flower wall panel" loading="lazy"></a>
         <div class="catalog-card-body"><a class="catalog-title" href="product-detail.html" data-view-product>Multicolor Silk Flower Wall</a><p>Bright mixed blooms · Custom sizes</p><div class="catalog-card-bottom"><span>Wholesale enquiry</span><button type="button" class="catalog-add" data-enquiry-product="Multicolor Silk Flower Wall">Add to enquiry <span>↗</span></button></div></div>
       </article>
-      <article class="catalog-card" data-color="color" data-name="Blue hydrangea floral wall" data-image="assets/img-41-d3a7e99842ac.webp">
+      <article class="catalog-card" data-color="blue" data-name="Blue hydrangea floral wall" data-image="assets/img-41-d3a7e99842ac.webp">
         <a class="catalog-image" href="product-detail.html" data-view-product><img src="assets/img-41-d3a7e99842ac.webp" alt="Blue hydrangea and rose artificial flower wall" loading="lazy"></a>
         <div class="catalog-card-body"><a class="catalog-title" href="product-detail.html" data-view-product>Blue Hydrangea Floral Wall</a><p>Blue blooms · Photo backdrop</p><div class="catalog-card-bottom"><span>Wholesale enquiry</span><button type="button" class="catalog-add" data-enquiry-product="Blue Hydrangea Floral Wall">Add to enquiry <span>↗</span></button></div></div>
       </article>
@@ -132,23 +172,53 @@ document.querySelectorAll('[data-filter]').forEach(btn=>btn.addEventListener('cl
    const href='product-detail.html?product='+encodeURIComponent(card.dataset.name)+'&image='+encodeURIComponent(card.dataset.image);
    card.querySelectorAll('[data-view-product]').forEach(link=>link.href=href);
  });
- const filter=document.getElementById('catalog-filter');
  const sort=document.getElementById('catalog-sort');
  const count=document.getElementById('catalog-count');
  const empty=document.getElementById('catalog-empty');
+ const colorButtons=Array.from(document.querySelectorAll('[data-color-filter]'));
+ const priceButtons=Array.from(document.querySelectorAll('[data-price-filter]'));
+ const priceNote=document.getElementById('price-filter-note');
+ let selectedColor='all', selectedPrice='all';
+ const pricedCards=cards.filter(card=>card.dataset.price!==undefined && card.dataset.price!=='' && Number.isFinite(Number(card.dataset.price)));
+ if(pricedCards.length){
+   priceButtons.forEach(btn=>btn.disabled=false);
+   if(priceNote)priceNote.hidden=true;
+ } else {
+   priceButtons.filter(btn=>btn.dataset.priceFilter!=='all').forEach(btn=>btn.disabled=true);
+ }
  const storageKey='zhuohuiFlowerWallRecentlyViewed';
+ function priceMatches(card,band){
+   if(band==='all')return true;
+   if(card.dataset.price===undefined||card.dataset.price==='')return false;
+   const price=Number(card.dataset.price);if(!Number.isFinite(price))return false;
+   if(band==='under50')return price<50;
+   if(band==='50-99')return price>=50&&price<=99.99;
+   if(band==='100-149')return price>=100&&price<=149.99;
+   if(band==='150plus')return price>=150;
+   return true;
+ }
+ function setActive(buttons,attr,value){
+   buttons.forEach(btn=>{const active=btn.dataset[attr]===value;btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',active?'true':'false')});
+ }
  function applyCatalog(){
-   const f=filter.value, s=sort.value;
-   let shown=cards.filter(card=>f==='all'||(f==='white'&&card.dataset.color==='white')||(f==='red'&&card.dataset.color==='red')||(f==='green'&&card.dataset.color==='green')||(f==='color'&&card.dataset.color==='color'));
+   const s=sort.value;
+   let shown=cards.filter(card=>(selectedColor==='all'||card.dataset.color===selectedColor)&&priceMatches(card,selectedPrice));
    cards.forEach(card=>card.hidden=!shown.includes(card));
    if(s==='az') shown.sort((a,b)=>a.dataset.name.localeCompare(b.dataset.name));
    if(s==='za') shown.sort((a,b)=>b.dataset.name.localeCompare(a.dataset.name));
    if(s==='featured') shown.sort((a,b)=>cards.indexOf(a)-cards.indexOf(b));
    shown.forEach(card=>grid.appendChild(card));
    count.textContent=shown.length+' '+(shown.length===1?'style':'styles');
+   empty.textContent=selectedPrice!=='all'&&pricedCards.length===0
+     ?'Public prices are not listed for these wholesale products. Please request a quotation.'
+     :'No styles match these filters. Try another color or price range.';
    empty.hidden=shown.length!==0;
  }
- filter.addEventListener('change',applyCatalog);sort.addEventListener('change',applyCatalog);
+ colorButtons.forEach(btn=>btn.addEventListener('click',()=>{selectedColor=btn.dataset.colorFilter;setActive(colorButtons,'colorFilter',selectedColor);applyCatalog()}));
+ priceButtons.forEach(btn=>btn.addEventListener('click',()=>{if(btn.disabled)return;selectedPrice=btn.dataset.priceFilter;setActive(priceButtons,'priceFilter',selectedPrice);applyCatalog()}));
+ sort.addEventListener('change',applyCatalog);
+ // Keep the displayed color counts tied to the actual product data.
+ colorButtons.forEach(btn=>{if(btn.dataset.colorFilter==='all')return;const countEl=btn.querySelector('small');if(countEl)countEl.textContent=cards.filter(card=>card.dataset.color===btn.dataset.colorFilter).length;});
  function saveRecent(card){
    const data={name:card.dataset.name,image:card.dataset.image,href:'product-detail.html?product='+encodeURIComponent(card.dataset.name)+'&image='+encodeURIComponent(card.dataset.image)};
    try{localStorage.setItem(storageKey,JSON.stringify(data))}catch(e){}
