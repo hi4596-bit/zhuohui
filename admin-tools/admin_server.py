@@ -105,11 +105,94 @@ def _encode_image(im, fmt: str, quality: int) -> bytes:
     return buf.getvalue()
 
 
+def _parse_hex_color(value, default=(255, 255, 255)):
+    """'#ffffff' / '#fff' / '255,255,255' -> (r, g, b)."""
+    if not value:
+        return default
+    v = str(value).strip()
+    try:
+        if ',' in v:
+            parts = [int(x) for x in v.split(',')[:3]]
+            if len(parts) == 3 and all(0 <= x <= 255 for x in parts):
+                return tuple(parts)
+            return default
+        v = v.lstrip('#')
+        if len(v) == 3:
+            v = ''.join(c * 2 for c in v)
+        if len(v) == 6:
+            return tuple(int(v[i:i + 2], 16) for i in (0, 2, 4))
+    except Exception:
+        pass
+    return default
+
+
+def _fit_to_ratio(im, target_ratio, mode='crop', pad_color=None, pad_mode='solid'):
+    """Force the image into `target_ratio` (w/h) using one of three strategies.
+
+    crop     : trim the overflow so the whole frame is filled (no distortion)
+    pad      : keep everything, letterbox with solid colour or transparency
+    stretch  : squash/stretch to the exact ratio (distorts content)
+    """
+    if not target_ratio or target_ratio <= 0:
+        return im
+    w, h = im.size
+    cur = w / h
+    if abs(cur - target_ratio) < 0.005:
+        return im
+
+    if mode == 'stretch':
+        # exact target ratio, content distorted
+        if cur > target_ratio:
+            nw = max(1, int(round(h * target_ratio)))
+            return im.resize((nw, h), Image.LANCZOS)
+        nh = max(1, int(round(w / target_ratio)))
+        return im.resize((w, nh), Image.LANCZOS)
+
+    if mode == 'pad':
+        if cur > target_ratio:
+            nh = max(1, int(round(w / target_ratio)))
+            canvas_size = (w, nh)
+        else:
+            nw = max(1, int(round(h * target_ratio)))
+            canvas_size = (nw, h)
+
+        transparent = (pad_mode == 'transparent')
+        if transparent:
+            canvas = Image.new('RGBA', canvas_size, (0, 0, 0, 0))
+            src = im.convert('RGBA')
+        else:
+            rgb = pad_color or (255, 255, 255)
+            canvas = Image.new('RGB', canvas_size, rgb)
+            src = im.convert('RGB') if im.mode not in ('RGB', 'L') else im.convert('RGB')
+
+        ox = (canvas_size[0] - w) // 2
+        oy = (canvas_size[1] - h) // 2
+        if transparent and src.mode == 'RGBA':
+            canvas.paste(src, (ox, oy), src)
+        else:
+            canvas.paste(src, (ox, oy))
+        return canvas
+
+    # default: crop (centre)
+    if cur > target_ratio:
+        nw = max(1, int(round(h * target_ratio)))
+        left = (w - nw) // 2
+        return im.crop((left, 0, left + nw, h))
+    nh = max(1, int(round(w / target_ratio)))
+    top = (h - nh) // 2
+    return im.crop((0, top, w, top + nh))
+
+
 def process_image(payload: bytes, *, crop=None, max_w=None, quality=None,
-                  fmt='webp', target_kb=None, max_kb=None):
-    """Crop, downscale and re-encode an uploaded image.
+                  fmt='webp', target_kb=None, max_kb=None,
+                  fit_ratio=None, fit_mode='crop', pad_color=None, pad_mode='solid'):
+    """Crop, fit, downscale and re-encode an uploaded image.
 
     crop     : dict with left/top/width/height in *source pixel* coordinates
+    fit_ratio: force output to this width/height ratio (e.g. 1.0 for square)
+    fit_mode : 'crop' (trim), 'pad' (letterbox) or 'stretch' (distort)
+    pad_color: '#rrggbb' solid colour used when fit_mode='pad'
+    pad_mode : 'solid' or 'transparent' when fit_mode='pad'
     max_w    : max output width in px (aspect preserved, never upscales)
     quality  : 1-100 encoder quality
     fmt      : 'webp' | 'jpg' | 'png'
@@ -141,6 +224,23 @@ def process_image(payload: bytes, *, crop=None, max_w=None, quality=None,
         w = max(1, min(w, src_w - l))
         h = max(1, min(h, src_h - t))
         im = im.crop((l, t, l + w, t + h))
+
+    # ---- 1b. force a target aspect ratio (crop / pad / stretch) ----
+    if fit_ratio:
+        try:
+            fr = float(fit_ratio)
+        except Exception:
+            fr = None
+        if fr and fr > 0:
+            mode = fit_mode if fit_mode in ('crop', 'pad', 'stretch') else 'crop'
+            im = _fit_to_ratio(im, fr, mode=mode,
+                               pad_color=_parse_hex_color(pad_color),
+                               pad_mode=pad_mode)
+            # transparency only survives in webp/png
+            if pad_mode == 'transparent' and fmt == 'jpg' and im.mode == 'RGBA':
+                bg = Image.new('RGB', im.size, (255, 255, 255))
+                bg.paste(im, mask=im.split()[-1])
+                im = bg
 
     # ---- 2. downscale (never upscale) ----
     if max_w:
@@ -396,6 +496,10 @@ class Handler(SimpleHTTPRequestHandler):
                 quality=quality or None,
                 fmt=fmt,
                 target_kb=target_kb or None,
+                fit_ratio=opts.get('fitRatio') or None,
+                fit_mode=opts.get('fitMode') or 'crop',
+                pad_color=opts.get('padColor') or None,
+                pad_mode=opts.get('padMode') or 'solid',
             )
 
             if opts.get('save', True):

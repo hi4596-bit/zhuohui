@@ -40,7 +40,75 @@ async function inspectSelectedFiles(files){const r=currentDimensionRule(),report
 function maybeWarnForUpload(files){const r=currentDimensionRule();return inspectFilesRaw(files,r).then(results=>{const bad=results.filter(x=>x.issues.length);if(!bad.length)return true;const summary=bad.slice(0,5).map(x=>`${x.file.name}: ${x.issues.join('；')}`).join('\\n');return confirm(`有 ${bad.length} 张图片与“${r.title}”推荐规格不完全匹配：\\n\\n${summary}\\n\\n仍要继续上传吗？`);})}
 async function inspectFilesRaw(files,r){const out=[];for(const file of files){const d=await readImageSize(file);const issues=[];if(!d.width||!d.height)issues.push('无法读取图片尺寸');else{const ratio=d.width/d.height;if(d.width<r.minW||d.height<r.minH)issues.push(`分辨率偏低（建议至少 ${r.minW} × ${r.minH}px）`);if(ratio<r.range[0]||ratio>r.range[1])issues.push(`比例 ${ratioLabel(d.width,d.height)} 与推荐不符`);if(file.size/1024>r.maxKB)issues.push(`文件较大：${(file.size/1024).toFixed(0)} KB`)}URL.revokeObjectURL(d.url);out.push({file,issues})}return out}
 
-async function loadMedia(){try{state.media=await api('/api/media');$('#media-count').textContent=`${state.media.length} 张图片`;$('#media-grid').innerHTML=state.media.map((m,i)=>`<article class="media-item"><img data-media-image="${i}" src="/${esc(m.path)}" alt="" loading="lazy"><div class="media-info"><div class="media-name">${esc(m.name)}</div><div class="muted">${esc(m.sizeLabel)}</div><div class="media-dimensions" data-media-dimensions="${i}">正在读取尺寸…</div><button class="small-btn" data-copy-path="${esc(m.path)}">复制相对路径</button></div></article>`).join('')||'<div class="empty">素材目录暂无图片。点击上传图片开始使用。</div>';state.media.forEach((m,i)=>{const im=$(`[data-media-image="${i}"]`);const show=()=>{const el=$(`[data-media-dimensions="${i}"]`);if(el&&im.naturalWidth)el.innerHTML=`<span class="dim-badge">${im.naturalWidth} × ${im.naturalHeight}px</span> · ${ratioLabel(im.naturalWidth,im.naturalHeight)}`};if(im?.complete)show();else im?.addEventListener('load',show,{once:true});});}catch(e){toast('读取素材失败：'+e.message)}}
+async function loadMedia() {
+  try {
+    state.media = await api('/api/media');
+    const cnt = $('#media-count');
+    if (cnt) cnt.textContent = state.media.length + ' 张图片';
+    const grid = $('#media-grid');
+    if (!grid) return;
+
+    grid.innerHTML = state.media.map((m, i) => {
+      return '<article class="media-item">'
+        + '<img data-media-image="' + i + '" src="/' + esc(m.path) + '" alt="" loading="lazy">'
+        + '<div class="media-info">'
+        + '<div class="media-name">' + esc(m.name) + '</div>'
+        + '<div class="media-dimensions" data-media-dimensions="' + i + '">读取中…</div>'
+        + '<div class="media-flags" data-media-flags="' + i + '"></div>'
+        + '<button class="small-btn" data-copy-path="' + esc(m.path) + '">复制相对路径</button>'
+        + '</div></article>';
+    }).join('') || '<div class="empty">素材目录暂无图片。点击上传图片开始使用。</div>';
+
+    state.media.forEach((m, i) => {
+      const im = $('[data-media-image="' + i + '"]');
+      const paint = () => {
+        if (!im || !im.naturalWidth) return;
+        paintMediaLabels(i, m, im.naturalWidth, im.naturalHeight, m.size);
+      };
+      if (im && im.complete) paint();
+      else if (im) im.addEventListener('load', paint, { once: true });
+    });
+  } catch (e) {
+    toast('读取素材失败：' + e.message);
+  }
+}
+
+function paintMediaLabels(index, media, w, h, bytes) {
+  const dimEl = $('[data-media-dimensions="' + index + '"]');
+  const flagEl = $('[data-media-flags="' + index + '"]');
+  const kb = Math.round((bytes || 0) / 1024);
+  const ratio = w / Math.max(1, h);
+
+  if (dimEl) {
+    dimEl.innerHTML = '<span class="dim-badge">' + w + ' × ' + h + ' px</span>'
+      + '<div style="margin-top:3px">' + ratio.toFixed(2) + ':1 · ' + kb + ' KB</div>';
+  }
+
+  if (!flagEl) return;
+
+  const rule = dimensionRules[currentPurpose()] || dimensionRules.product;
+  const issues = [];
+  if (w < rule.minW || h < rule.minH) issues.push('尺寸偏小');
+  if (ratio < rule.range[0] || ratio > rule.range[1]) issues.push('比例不符');
+  if (kb > rule.maxKB) issues.push('体积偏大');
+
+  const needsWork = [];
+  if (kb > 500) needsWork.push('>500KB');
+  if (w < 800 && h < 800) needsWork.push('<800px');
+
+  const parts = [];
+  if (issues.length === 0) {
+    parts.push('<span class="dimension-status" style="font-size:9px;padding:3px 6px">符合' + esc(rule.title || '规格') + '</span>');
+  } else {
+    parts.push('<span class="dimension-status warn" style="font-size:9px;padding:3px 6px" title="'
+      + esc(issues.join('；')) + '">' + esc(issues.join(' · ')) + '</span>');
+  }
+  if (needsWork.length) {
+    parts.push('<span class="dimension-status bad" style="font-size:9px;padding:3px 6px" title="建议优化">待优化 '
+      + esc(needsWork.join(' ')) + '</span>');
+  }
+  flagEl.innerHTML = parts.join(' ');
+}
 
 function download(name,data,type='application/json'){const blob=new Blob([type==='text/csv'?data:JSON.stringify(data,null,2)],{type:type==='text/csv'?'text/csv;charset=utf-8':'application/json;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)}
 function exportCSV(){const cols=['id','name','category','description','image','colors','price','compareAt','status','featured','sortOrder'];const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[cols.join(','),...state.products.map(p=>cols.map(k=>q(Array.isArray(p[k])?p[k].join('|'):p[k])).join(','))];download('zhuohui-products.csv','\ufeff'+rows.join('\r\n'),'text/csv')}
@@ -341,6 +409,10 @@ async function applyCrop(save) {
     purpose: currentPurpose(),
     maxWidth: parseInt(mwEl ? mwEl.value : '0', 10) || null,
     targetKb: parseInt(tkEl ? tkEl.value : '0', 10) || null,
+    fitRatio: cropper.ratio === 'free' ? null : parseFloat(cropper.ratio),
+    fitMode: (document.getElementById('crop-fitmode') || {}).value || 'crop',
+    padMode: (document.getElementById('crop-padmode') || {}).value || 'solid',
+    padColor: (document.getElementById('crop-padcolor') || {}).value || '#ffffff',
     save: save
   };
   fd.append('options', new Blob([JSON.stringify(opts)], { type: 'application/json' }), 'options.json');
@@ -438,6 +510,29 @@ async function runBatchOptimize() {
 function initCropper() {
   loadCapabilities();
 
+  // stretch warning + colour picker bindings
+  const fitModeSel = $('#crop-fitmode');
+  if (fitModeSel && !fitModeSel._bound) {
+    fitModeSel._bound = true;
+    fitModeSel.addEventListener('change', function () {
+      const warn = $('#stretch-warn');
+      if (warn) warn.style.display = fitModeSel.value === 'stretch' ? 'block' : 'none';
+      ['crop-padmode', 'crop-padcolor'].forEach(function (id) {
+        const el = $('#' + id);
+        if (el && el.closest('.field')) el.closest('.field').style.opacity = fitModeSel.value === 'pad' ? '1' : '.45';
+      });
+    });
+  }
+  const padColorText = $('#crop-padcolor');
+  const padColorPick = $('#crop-padcolor-pick');
+  if (padColorPick && padColorText && !padColorPick._bound) {
+    padColorPick._bound = true;
+    padColorPick.addEventListener('input', function () { padColorText.value = padColorPick.value; });
+    padColorText.addEventListener('input', function () {
+      const v = padColorText.value.trim();
+      if (/^#[0-9a-fA-F]{6}$/.test(v)) padColorPick.value = v;
+    });
+  }
   const openBtn = $('#open-cropper');
   if (openBtn) openBtn.addEventListener('click', function () { $('#cropper-file-input').click(); });
 

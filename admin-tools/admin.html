@@ -102,6 +102,29 @@
           <label class="field">目标体积上限（KB）
             <input id="crop-targetkb" type="number" min="0" max="5000" step="10" placeholder="留空则不限制，如 300">
           </label>
+          <label class="field">比例不符时如何处理
+            <select id="crop-fitmode">
+              <option value="crop">裁剪到目标比例（推荐，不改变图像）</option>
+              <option value="pad">填充到目标比例（保留全部画面）</option>
+              <option value="stretch">拉伸到目标比例（会变形，慎用）</option>
+            </select>
+          </label>
+          <label class="field">填充方式
+            <select id="crop-padmode">
+              <option value="solid">纯色填充</option>
+              <option value="transparent">透明填充（仅 WebP / PNG）</option>
+            </select>
+          </label>
+          <label class="field">填充颜色
+            <div class="input-row">
+              <input id="crop-padcolor" type="text" value="#ffffff" placeholder="#ffffff 或 255,255,255" maxlength="20">
+              <input id="crop-padcolor-pick" type="color" value="#ffffff" style="width:46px;flex:none;padding:2px">
+            </div>
+          </label>
+        </div>
+        <div class="notice" id="stretch-warn" style="display:none;border-color:#e8c8c4;background:#fdf3f1;color:#8f4038">
+          <strong>注意：</strong>「拉伸」会把画面强行挤压或抻长，花墙可能变扁、拱门可能变窄。<br>
+          如果只是比例不合适，建议用「裁剪」或「填充」，视觉上不会有变形。
         </div>
         <div class="dimension-tool">
           <div><strong>选择图片并裁剪</strong><p>打开裁剪窗口，拖拽选框调整构图；确认后自动压缩并保存到 assets/uploads/。</p></div>
