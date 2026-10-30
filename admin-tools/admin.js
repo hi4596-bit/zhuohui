@@ -146,16 +146,20 @@ $('#upload-media').addEventListener('click',()=>$('#media-file-input').click());
 $('#home-site-name').addEventListener('input',()=>{state.homepage.siteName=$('#home-site-name').value;markDirty()});$('#home-announcement').addEventListener('input',()=>{state.homepage.announcement=$('#home-announcement').value;markDirty()});$('#save-home').addEventListener('click',async()=>{state.homepage.siteName=$('#home-site-name').value.trim();state.homepage.announcement=$('#home-announcement').value.trim();$$('[data-area-field]').forEach(input=>{const a=state.homepage.areas?.[Number(input.dataset.areaIndex)];if(a)a[input.dataset.areaField]=input.value.trim()});try{await saveData('homepage')}catch(e){toast(e.message,4000)}});$('#reset-home-order').addEventListener('click',()=>{state.homepage.modules.sort((a,b)=>a.sortOrder-b.sortOrder).forEach((m,i)=>m.sortOrder=i+1);renderHomepage();markDirty()});$('#save-all').addEventListener('click',async()=>{state.homepage.siteName=$('#home-site-name').value.trim()||state.homepage.siteName;state.homepage.announcement=$('#home-announcement').value.trim();$$('[data-area-field]').forEach(input=>{const a=state.homepage.areas?.[Number(input.dataset.areaIndex)];if(a)a[input.dataset.areaField]=input.value.trim()});try{await api('/api/data/products',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(state.products,null,2)});await api('/api/data/colors',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(state.colors,null,2)});await api('/api/data/homepage',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(state.homepage,null,2)});state.dirty=false;$('#connection-status').textContent='已保存到本地';toast('所有数据已保存')}catch(e){toast('保存失败：'+e.message,4000)}});$('#export-products').addEventListener('click',exportCSV);$('#download-data').addEventListener('click',exportAll);$('#download-backup').addEventListener('click',()=>{location.href='/api/backup'});$('#open-site').addEventListener('click',()=>window.open('/','_blank'));
 loadAll().catch(e=>{console.error(e);$('#connection-status').textContent='服务连接失败';toast('无法读取本地数据，请确认通过 run-admin.bat 启动后台。'+e.message,6000)});
 
-/* ===== Image cropper & compressor ===== */
+/* ===== Image cropper (Figma-style) & compressor ===== */
 const cropper = {
-  img: null, file: null, scale: 1, box: { x: 0, y: 0, w: 0, h: 0 },
-  drag: null, ratio: 'free', caps: null
+  img: null, file: null, naturalW: 0, naturalH: 0,
+  zoom: 1, fitZoom: 1, panX: 0, panY: 0,
+  sel: { x: 0, y: 0, w: 0, h: 0 },   // in DISPLAY px (relative to the image box)
+  ratio: 'free',
+  drag: null, panning: false, spaceDown: false,
+  caps: null, callbacks: null, sourcePath: null
 };
 
 async function loadCapabilities() {
   try {
     cropper.caps = await api('/api/capabilities');
-    const el = $('#pillow-status');
+    const el = document.getElementById('pillow-status');
     if (!el) return;
     if (cropper.caps.pillow) {
       el.textContent = 'Pillow ' + (cropper.caps.pillowVersion || '') + ' 可用';
@@ -167,15 +171,19 @@ async function loadCapabilities() {
       el.style.color = '#a3453c';
     }
   } catch (e) {
-    const el = $('#pillow-status');
+    const el = document.getElementById('pillow-status');
     if (el) el.textContent = '服务未响应';
   }
 }
 
 function currentPurpose() {
-  const sel = $('#dimension-use');
+  const sel = document.getElementById('dimension-use');
   return sel ? sel.value : 'product';
 }
+
+const $id = function (x) { return document.getElementById(x); };
+
+/* ---------- open / close ---------- */
 
 function openCropper(file, options) {
   if (!file) return;
@@ -185,52 +193,55 @@ function openCropper(file, options) {
     if (opts.onCancel) opts.onCancel();
     return;
   }
+
   cropper.file = file;
+  cropper.sourcePath = opts.sourcePath || null;
   cropper.callbacks = { onSaved: opts.onSaved || null, onCancel: opts.onCancel || null };
-  cropper.forced = !!opts.reason;
+  cropper.forced = !!(opts.reason && opts.reason.length);
 
-  // auto-pick the ratio that matches the purpose so the first crop is sensible
-  const ratioSel = $('#crop-ratio');
-  if (opts.purpose && ratioSel) {
-    const preset = dimensionRules[opts.purpose];
-    if (preset && preset.ratio) {
-      const want = String(preset.ratio);
-      const found = Array.prototype.find.call(ratioSel.options, function (o) { return o.value === want; });
-      if (found) ratioSel.value = want;
-    }
+  // default to free crop; only lock a ratio when the caller explicitly asks
+  selectRatioButton('free');
+  const mwHint = $id('crop-maxwidth');
+  if (mwHint && opts.purpose) {
+    const preset2 = dimensionRules[opts.purpose];
+    if (preset2 && preset2.maxW && !mwHint.value) mwHint.placeholder = '\u7559\u7a7a\u5219\u6309\u7528\u9014\u81ea\u52a8\uff08' + preset2.maxW + 'px\uff09';
   }
-  cropper.ratio = ratioSel ? ratioSel.value : 'free';
+  const tk = $id('crop-targetkb');
+  if (tk && opts.purpose) {
+    const preset = dimensionRules[opts.purpose];
+    if (preset && preset.maxKB && !tk.value) tk.value = preset.maxKB;
+  }
 
+  const img = $id('crop-img');
   const url = URL.createObjectURL(file);
-  const img = new Image();
   img.onload = function () {
     cropper.img = img;
-    const nameEl = $('#cropper-filename');
+    cropper.naturalW = img.naturalWidth;
+    cropper.naturalH = img.naturalHeight;
+
+    const nameEl = $id('cropper-filename');
     if (nameEl) {
-      nameEl.textContent = file.name + ' · ' + img.naturalWidth + '×' + img.naturalHeight + 'px · ' + Math.round(file.size / 1024) + ' KB';
+      nameEl.textContent = file.name + ' · ' + img.naturalWidth + '\u00d7' + img.naturalHeight +
+        ' px · ' + Math.round(file.size / 1024) + ' KB' + (opts.sourcePath ? ' · \u7f16\u8f91\u4e2d' : '');
     }
 
-    // show WHY the editor opened
-    const info = $('#crop-info');
+    const info = $id('crop-info');
     if (info && opts.reason && opts.reason.length) {
-      info.innerHTML = '<span class="crop-warn">不符合规格：</span>' + opts.reason.join('；') +
-        '<br><span class="muted">请调整裁剪框或设置压缩参数后再保存。</span>';
+      info.innerHTML = '<span style="color:#a0642c;font-weight:600">\u4e0d\u7b26\u5408\u89c4\u683c\uff1a</span>'
+        + (typeof esc === 'function' ? esc(opts.reason.join('\uff1b')) : opts.reason.join('\uff1b'));
+    } else if (info) {
+      info.textContent = '\u62d6\u62fd\u6846\u9009\u88c1\u526a\u533a\u57df\uff0c\u56db\u5468\u53e5\u67c4\u8c03\u6574\u5c3a\u5bf8';
     }
 
-    // pre-fill the target size from the purpose preset
-    const tk = $('#crop-targetkb');
-    if (tk && opts.purpose) {
-      const preset = dimensionRules[opts.purpose];
-      if (preset && preset.maxKB && !tk.value) tk.value = preset.maxKB;
-    }
-
-    $('#cropper-modal').classList.add('open');
-    drawCropper();
-    resetCropBox();
-    updateCropInfo();
+    $id('cropper-modal').classList.add('open');
+    requestAnimationFrame(function () {
+      fitToViewport();
+      resetSelection();
+      updateZoomLabel();
+    });
   };
   img.onerror = function () {
-    toast('图片读取失败', 4000);
+    toast('\u56fe\u7247\u8bfb\u53d6\u5931\u8d25', 4000);
     URL.revokeObjectURL(url);
     if (opts.onCancel) opts.onCancel();
   };
@@ -238,68 +249,159 @@ function openCropper(file, options) {
 }
 
 function closeCropper(cancelled) {
-  $('#cropper-modal').classList.remove('open');
+  $id('cropper-modal').classList.remove('open');
   const cb = cropper.callbacks || null;
   cropper.callbacks = null;
   if (cancelled && cb && cb.onCancel) cb.onCancel();
 }
 
-function drawCropper() {
-  const img = cropper.img;
-  const canvas = $('#crop-canvas');
-  if (!img || !canvas) return;
-  const stage = $('#crop-stage');
-  const availW = Math.max(240, stage.clientWidth - 4);
-  const availH = Math.max(200, Math.min(window.innerHeight * 0.62, 620));
-  const s = Math.min(availW / img.naturalWidth, availH / img.naturalHeight, 1);
-  cropper.scale = s;
-  canvas.width = Math.round(img.naturalWidth * s);
-  canvas.height = Math.round(img.naturalHeight * s);
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+/* ---------- viewport / zoom ---------- */
+
+function fitToViewport() {
+  const vp = $id('crop-viewport');
+  const img = $id('crop-img');
+  if (!vp || !img || !cropper.naturalW) return;
+
+  const pad = 56;
+  const availW = Math.max(120, vp.clientWidth - pad);
+  const availH = Math.max(120, vp.clientHeight - pad);
+  const s = Math.min(availW / cropper.naturalW, availH / cropper.naturalH);
+
+  cropper.fitZoom = s;
+  cropper.zoom = s;
+  cropper.panX = 0;
+  cropper.panY = 0;
+  applyTransform();
 }
 
-function resetCropBox() {
-  const canvas = $('#crop-canvas');
-  if (!canvas || !canvas.width) return;
-  const cw = canvas.width;
-  const ch = canvas.height;
+function applyTransform() {
+  const wrap = $id('crop-canvas-wrap');
+  const img = $id('crop-img');
+  if (!wrap || !img) return;
+
+  const dw = Math.max(1, Math.round(cropper.naturalW * cropper.zoom));
+  const dh = Math.max(1, Math.round(cropper.naturalH * cropper.zoom));
+
+  img.style.width = dw + 'px';
+  img.style.height = dh + 'px';
+  wrap.style.width = dw + 'px';
+  wrap.style.height = dh + 'px';
+  wrap.style.transform = 'translate(' + cropper.panX + 'px,' + cropper.panY + 'px)';
+
+  // keep the selection inside bounds after zoom changes
+  clampSelection();
+  paintSelection();
+  updateCropInfo();
+}
+
+function setZoom(z, anchorPx, anchorPy) {
+  const vp = $id('crop-viewport');
+  if (!vp) return;
+  const minZ = cropper.fitZoom * 0.35;
+  const maxZ = cropper.fitZoom * 8;
+  const newZ = Math.max(minZ, Math.min(maxZ, z));
+
+  // zoom around a point (keep that spot under the cursor)
+  let ax = anchorPx;
+  let ay = anchorPy;
+  if (ax === undefined) {
+    ax = vp.clientWidth / 2 - cropper.panX;
+    ay = vp.clientHeight / 2 - cropper.panY;
+  }
+  const ratio = newZ / cropper.zoom;
+  cropper.panX = ax - (ax - cropper.panX) * ratio;
+  cropper.panY = ay - (ay - cropper.panY) * ratio;
+  cropper.zoom = newZ;
+  applyTransform();
+  updateZoomLabel();
+}
+
+function updateZoomLabel() {
+  const lbl = $id('zoom-label');
+  const rng = $id('zoom-range');
+  const pct = Math.round((cropper.zoom / cropper.fitZoom) * 100);
+  if (lbl) lbl.textContent = pct + '%';
+  if (rng) rng.value = String(Math.max(20, Math.min(300, pct)));
+}
+
+/* ---------- selection ---------- */
+
+function selectRatioButton(value) {
+  cropper.ratio = value;
+  document.querySelectorAll('.ratio-btn').forEach(function (b) {
+    b.classList.toggle('active', b.dataset.ratio === value);
+  });
+}
+
+function selectionBounds() {
+  const img = $id('crop-img');
+  if (!img) return { w: 0, h: 0 };
+  return { w: img.offsetWidth || img.clientWidth, h: img.offsetHeight || img.clientHeight };
+}
+
+function resetSelection() {
+  const b = selectionBounds();
+  if (!b.w || !b.h) return;
   const r = cropper.ratio === 'free' ? null : parseFloat(cropper.ratio);
+
   let w, h;
   if (r) {
-    if (cw / ch > r) { h = ch * 0.9; w = h * r; }
-    else { w = cw * 0.9; h = w / r; }
+    if (b.w / b.h > r) { h = b.h * 0.92; w = h * r; }
+    else { w = b.w * 0.92; h = w / r; }
   } else {
-    w = cw * 0.86;
-    h = ch * 0.86;
+    w = b.w * 0.88;
+    h = b.h * 0.88;
   }
-  cropper.box = { x: (cw - w) / 2, y: (ch - h) / 2, w: w, h: h };
-  paintBox();
+  cropper.sel = { x: (b.w - w) / 2, y: (b.h - h) / 2, w: w, h: h };
+  paintSelection();
+  updateCropInfo();
 }
 
-function paintBox() {
-  const canvas = $('#crop-canvas');
-  const box = $('#crop-box');
-  if (!canvas || !box) return;
-  const rect = canvas.getBoundingClientRect();
-  const stageRect = $('#crop-stage').getBoundingClientRect();
-  const offsetX = rect.left - stageRect.left;
-  const offsetY = rect.top - stageRect.top;
-  const k = rect.width / canvas.width;
-  const b = cropper.box;
-  box.style.left = (offsetX + b.x * k) + 'px';
-  box.style.top = (offsetY + b.y * k) + 'px';
-  box.style.width = (b.w * k) + 'px';
-  box.style.height = (b.h * k) + 'px';
+function clampSelection() {
+  const b = selectionBounds();
+  const s = cropper.sel;
+  if (!b.w || !b.h) return;
+  s.w = Math.max(24, Math.min(s.w, b.w));
+  s.h = Math.max(24, Math.min(s.h, b.h));
+  s.x = Math.max(0, Math.min(s.x, b.w - s.w));
+  s.y = Math.max(0, Math.min(s.y, b.h - s.h));
+}
+
+function paintSelection() {
+  const selEl = $id('crop-selection');
+  const wrap = $id('crop-canvas-wrap');
+  const top = document.querySelector('.shade-top');
+  const bottom = document.querySelector('.shade-bottom');
+  const left = document.querySelector('.shade-left');
+  const right = document.querySelector('.shade-right');
+  if (!selEl || !wrap) return;
+
+  const s = cropper.sel;
+  const bw = wrap.offsetWidth;
+  const bh = wrap.offsetHeight;
+
+  selEl.style.left = s.x + 'px';
+  selEl.style.top = s.y + 'px';
+  selEl.style.width = s.w + 'px';
+  selEl.style.height = s.h + 'px';
+
+  if (top) { top.style.height = s.y + 'px'; }
+  if (bottom) { bottom.style.height = Math.max(0, bh - s.y - s.h) + 'px'; }
+  if (left) { left.style.top = s.y + 'px'; left.style.width = s.x + 'px'; left.style.height = s.h + 'px'; }
+  if (right) {
+    right.style.top = s.y + 'px';
+    right.style.width = Math.max(0, bw - s.x - s.w) + 'px';
+    right.style.height = s.h + 'px';
+  }
 }
 
 function updateCropInfo() {
-  const b = cropper.box;
-  const s = cropper.scale || 1;
-  const sw = Math.round(b.w / s);
-  const sh = Math.round(b.h / s);
-  const maxWEl = $('#crop-maxwidth');
+  const z = cropper.zoom || 1;
+  const s = cropper.sel;
+  const sw = Math.max(1, Math.round(s.w / z));
+  const sh = Math.max(1, Math.round(s.h / z));
+
+  const maxWEl = $id('crop-maxwidth');
   const maxW = parseInt(maxWEl ? maxWEl.value : '0', 10) || 0;
   let outW = sw;
   let outH = sh;
@@ -307,124 +409,207 @@ function updateCropInfo() {
     outH = Math.round(sh * maxW / sw);
     outW = maxW;
   }
-  const el = $('#crop-outsize');
-  if (el) el.value = outW + ' × ' + outH + ' px（原图裁切 ' + sw + '×' + sh + '）';
-  const info = $('#crop-info');
-  if (info) {
-    const r = (sw / Math.max(1, sh)).toFixed(2);
-    info.innerHTML = '裁剪区域 <span class="crop-ok">' + sw + ' × ' + sh + '</span> px · 比例 ' + r + ':1 · '
-      + (cropper.ratio === 'free' ? '自由裁剪' : '已锁定比例');
+  const out = $id('crop-outsize');
+  if (out) out.textContent = '\u8f93\u51fa ' + outW + ' \u00d7 ' + outH + ' px';
+
+  const info = $id('crop-info');
+  if (info && !cropper.forced) {
+    info.textContent = '\u88c1\u526a ' + sw + ' \u00d7 ' + sh + ' px \u00b7 \u6bd4\u4f8b '
+      + (sw / Math.max(1, sh)).toFixed(2) + ':1 \u00b7 ' + (cropper.ratio === 'free' ? '\u81ea\u7531' : '\u5df2\u9501\u5b9a');
   }
 }
 
-function bindCropDrag() {
-  const box = $('#crop-box');
-  const canvas = $('#crop-canvas');
-  if (!box || !canvas) return;
+/* ---------- pointer interaction ---------- */
 
-  function pos(ev) {
-    const rect = canvas.getBoundingClientRect();
-    const k = canvas.width / rect.width;
-    const pt = ev.touches ? ev.touches[0] : ev;
-    return { x: (pt.clientX - rect.left) * k, y: (pt.clientY - rect.top) * k };
+function bindCropperEvents() {
+  const vp = $id('crop-viewport');
+  const wrap = $id('crop-canvas-wrap');
+  const selEl = $id('crop-selection');
+  if (!vp || !wrap || !selEl) return;
+
+  function localPoint(ev) {
+    const r = wrap.getBoundingClientRect();
+    return { x: ev.clientX - r.left, y: ev.clientY - r.top };
   }
 
-  function start(ev, mode, handle) {
+  function startResize(ev, handle) {
     ev.preventDefault();
     ev.stopPropagation();
-    cropper.drag = { mode: mode, handle: handle, start: pos(ev), box: Object.assign({}, cropper.box) };
+    const p = localPoint(ev);
+    cropper.drag = {
+      mode: 'resize', handle: handle,
+      startX: p.x, startY: p.y,
+      box: { x: cropper.sel.x, y: cropper.sel.y, w: cropper.sel.w, h: cropper.sel.h }
+    };
   }
 
-  function endDrag() {
-    cropper.drag = null;
+  function startMove(ev) {
+    ev.preventDefault();
+    const p = localPoint(ev);
+    cropper.drag = {
+      mode: 'move',
+      startX: p.x, startY: p.y,
+      box: { x: cropper.sel.x, y: cropper.sel.y }
+    };
   }
 
-  function move(ev) {
+  function onPointerMove(ev) {
+    if (cropper.panning) {
+      cropper.panX += ev.clientX - cropper.panStartX;
+      cropper.panY += ev.clientY - cropper.panStartY;
+      cropper.panStartX = ev.clientX;
+      cropper.panStartY = ev.clientY;
+      wrap.style.transform = 'translate(' + cropper.panX + 'px,' + cropper.panY + 'px)';
+      return;
+    }
     const d = cropper.drag;
     if (!d) return;
     ev.preventDefault();
-    const p = pos(ev);
-    const dx = p.x - d.start.x;
-    const dy = p.y - d.start.y;
-    const cw = canvas.width;
-    const ch = canvas.height;
-    const b = Object.assign({}, d.box);
+
+    const p = localPoint(ev);
+    const b = selectionBounds();
+    const s = cropper.sel;
+    const r = cropper.ratio === 'free' ? null : parseFloat(cropper.ratio);
 
     if (d.mode === 'move') {
-      b.x = Math.max(0, Math.min(d.box.x + dx, cw - b.w));
-      b.y = Math.max(0, Math.min(d.box.y + dy, ch - b.h));
-      cropper.box = b;
-      paintBox();
+      s.x = Math.max(0, Math.min(d.box.x + (p.x - d.startX), b.w - s.w));
+      s.y = Math.max(0, Math.min(d.box.y + (p.y - d.startY), b.h - s.h));
+      paintSelection();
       updateCropInfo();
       return;
     }
 
-    const r = cropper.ratio === 'free' ? null : parseFloat(cropper.ratio);
-    let x = d.box.x, y = d.box.y, w = d.box.w, h = d.box.h;
-    const hd = d.handle || '';
+    const hd = d.handle;
+    let left = d.box.x;
+    let top = d.box.y;
+    let right = d.box.x + d.box.w;
+    let bottom = d.box.y + d.box.h;
 
-    if (hd.indexOf('e') >= 0) w = d.box.w + dx;
-    if (hd.indexOf('s') >= 0) h = d.box.h + dy;
-    if (hd.indexOf('w') >= 0) { w = d.box.w - dx; x = d.box.x + dx; }
-    if (hd.indexOf('n') >= 0) { h = d.box.h - dy; y = d.box.y + dy; }
+    if (hd.indexOf('w') >= 0) left = Math.min(d.box.x + (p.x - d.startX), right - 24);
+    if (hd.indexOf('e') >= 0) right = Math.max(d.box.x + d.box.w + (p.x - d.startX), left + 24);
+    if (hd.indexOf('n') >= 0) top = Math.min(d.box.y + (p.y - d.startY), bottom - 24);
+    if (hd.indexOf('s') >= 0) bottom = Math.max(d.box.y + d.box.h + (p.y - d.startY), top + 24);
 
-    w = Math.max(24, w);
-    h = Math.max(24, h);
+    left = Math.max(0, left);
+    top = Math.max(0, top);
+    right = Math.min(b.w, right);
+    bottom = Math.min(b.h, bottom);
 
-    if (r) {
-      if (hd === 'nw' || hd === 'se') { h = w / r; }
-      else { w = h * r; }
-      if (hd.indexOf('w') >= 0) x = d.box.x + d.box.w - w;
-      if (hd.indexOf('n') >= 0) y = d.box.y + d.box.h - h;
-    }
-
-    if (x < 0) { w += x; x = 0; }
-    if (y < 0) { h += y; y = 0; }
-    if (x + w > cw) w = cw - x;
-    if (y + h > ch) h = ch - y;
+    let w = right - left;
+    let h = bottom - top;
 
     if (r) {
-      h = w / r;
-      if (y + h > ch) { h = ch - y; w = h * r; }
+      // lock aspect ratio from the anchored corner
+      if (hd === 'n' || hd === 's') {
+        w = h * r;
+      } else if (hd === 'e' || hd === 'w') {
+        h = w / r;
+      } else {
+        h = w / r;
+      }
+      if (hd.indexOf('w') >= 0) left = right - w;
+      if (hd.indexOf('n') >= 0) top = bottom - h;
+      if (left < 0) { left = 0; w = right; h = w / r; if (hd.indexOf('n') >= 0) top = bottom - h; }
+      if (top < 0) { top = 0; h = bottom; w = h * r; if (hd.indexOf('w') >= 0) left = right - w; }
+      if (left + w > b.w) { w = b.w - left; h = w / r; }
+      if (top + h > b.h) { h = b.h - top; w = h * r; }
     }
 
-    cropper.box = { x: x, y: y, w: Math.max(24, w), h: Math.max(24, h) };
-    paintBox();
+    s.x = Math.max(0, left);
+    s.y = Math.max(0, top);
+    s.w = Math.max(24, w);
+    s.h = Math.max(24, h);
+    clampSelection();
+    paintSelection();
     updateCropInfo();
   }
 
-  box.addEventListener('mousedown', function (e) {
-    if (e.target.classList.contains('crop-handle')) start(e, 'resize', e.target.dataset.h);
-    else start(e, 'move');
+  function endPointer() {
+    cropper.drag = null;
+    cropper.panning = false;
+    vp.classList.remove('panning');
+  }
+
+  // 8 handles
+  selEl.querySelectorAll('.crop-handle').forEach(function (hEl) {
+    const hd = hEl.dataset.h;
+    hEl.addEventListener('mousedown', function (e) { startResize(e, hd); });
+    hEl.addEventListener('touchstart', function (e) { startResize(e, hd); }, { passive: false });
   });
-  box.addEventListener('touchstart', function (e) {
-    if (e.target.classList.contains('crop-handle')) start(e, 'resize', e.target.dataset.h);
-    else start(e, 'move');
+
+  selEl.addEventListener('mousedown', function (e) {
+    if (e.target.closest('.crop-handle')) return;
+    startMove(e);
+  });
+  selEl.addEventListener('touchstart', function (e) {
+    if (e.target.closest('.crop-handle')) return;
+    startMove(e);
   }, { passive: false });
 
-  document.addEventListener('mousemove', move);
-  document.addEventListener('touchmove', move, { passive: false });
-  document.addEventListener('mouseup', endDrag);
-  document.addEventListener('touchend', endDrag);
+  // pan with space / middle button
+  vp.addEventListener('mousedown', function (e) {
+    if (e.button === 1 || cropper.spaceDown) {
+      e.preventDefault();
+      cropper.panning = true;
+      cropper.panStartX = e.clientX;
+      cropper.panStartY = e.clientY;
+      vp.classList.add('panning');
+    }
+  });
+
+  document.addEventListener('mousemove', onPointerMove);
+  document.addEventListener('touchmove', onPointerMove, { passive: false });
+  document.addEventListener('mouseup', endPointer);
+  document.addEventListener('touchend', endPointer);
+
+  // wheel zoom
+  vp.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    const rect = vp.getBoundingClientRect();
+    const ax = e.clientX - rect.left - cropper.panX;
+    const ay = e.clientY - rect.top - cropper.panY;
+    const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
+    setZoom(cropper.zoom * factor, ax, ay);
+  }, { passive: false });
+
+  // space to pan
+  document.addEventListener('keydown', function (e) {
+    if (e.code === 'Space' && $id('cropper-modal').classList.contains('open')) {
+      cropper.spaceDown = true;
+      vp.style.cursor = 'grab';
+    }
+  });
+  document.addEventListener('keyup', function (e) {
+    if (e.code === 'Space') {
+      cropper.spaceDown = false;
+      vp.style.cursor = '';
+    }
+  });
 }
+
+/* ---------- apply ---------- */
 
 async function applyCrop(save) {
   if (!cropper.img || !cropper.file) return;
-  const s = cropper.scale || 1;
-  const b = cropper.box;
+  const z = cropper.zoom || 1;
+  const s = cropper.sel;
   const crop = {
-    left: Math.round(b.x / s),
-    top: Math.round(b.y / s),
-    width: Math.round(b.w / s),
-    height: Math.round(b.h / s)
+    left: Math.round(s.x / z),
+    top: Math.round(s.y / z),
+    width: Math.round(s.w / z),
+    height: Math.round(s.h / z)
   };
 
   const fd = new FormData();
   fd.append('file', cropper.file);
 
-  const fmtEl = $('#crop-format');
-  const mwEl = $('#crop-maxwidth');
-  const tkEl = $('#crop-targetkb');
+  const fmtEl = $id('crop-format');
+  const mwEl = $id('crop-maxwidth');
+  const tkEl = $id('crop-targetkb');
+  const fitEl = $id('crop-fitmode');
+  const padEl = $id('crop-padmode');
+  const padcEl = $id('crop-padcolor');
+
   const opts = {
     crop: crop,
     format: fmtEl ? fmtEl.value : 'webp',
@@ -432,43 +617,46 @@ async function applyCrop(save) {
     maxWidth: parseInt(mwEl ? mwEl.value : '0', 10) || null,
     targetKb: parseInt(tkEl ? tkEl.value : '0', 10) || null,
     fitRatio: cropper.ratio === 'free' ? null : parseFloat(cropper.ratio),
-    fitMode: (document.getElementById('crop-fitmode') || {}).value || 'crop',
-    padMode: (document.getElementById('crop-padmode') || {}).value || 'solid',
-    padColor: (document.getElementById('crop-padcolor') || {}).value || '#ffffff',
+    fitMode: fitEl ? fitEl.value : 'crop',
+    padMode: padEl ? padEl.value : 'solid',
+    padColor: padcEl ? padcEl.value : '#ffffff',
     save: save
   };
   fd.append('options', new Blob([JSON.stringify(opts)], { type: 'application/json' }), 'options.json');
 
-  const btn = save ? $('#cropper-apply') : $('#cropper-skip');
+  const btn = save ? $id('cropper-apply') : $id('cropper-skip');
   if (!btn) return;
   const oldText = btn.textContent;
   btn.disabled = true;
-  btn.textContent = '处理中…';
+  btn.textContent = '\u5904\u7406\u4e2d\u2026';
   try {
     const res = await api('/api/image/process', { method: 'POST', body: fd });
     if (save) {
       const cb = cropper.callbacks || null;
       cropper.callbacks = null;
-      $('#cropper-modal').classList.remove('open');
+      $id('cropper-modal').classList.remove('open');
       if (cb && cb.onSaved) cb.onSaved(res.path);
       if (!cb) await loadMedia();
-      toast('已保存 ' + res.name + ' · ' + res.width + '×' + res.height + ' · ' + res.sizeLabel + '（省 ' + res.savedPercent + '%）', 5000);
+      toast('\u5df2\u4fdd\u5b58 ' + res.name + ' \u00b7 ' + res.width + '\u00d7' + res.height
+        + ' \u00b7 ' + res.sizeLabel + '\uff08\u7701 ' + res.savedPercent + '%\uff09', 5000);
     } else {
-      toast('预览：' + res.width + '×' + res.height + ' · ' + res.sizeLabel, 4000);
+      toast('\u9884\u89c8\uff1a' + res.width + '\u00d7' + res.height + ' \u00b7 ' + res.sizeLabel, 4000);
     }
   } catch (e) {
-    toast('处理失败：' + e.message, 5000);
+    toast('\u5904\u7406\u5931\u8d25\uff1a' + e.message, 5000);
   } finally {
     btn.disabled = false;
     btn.textContent = oldText;
   }
 }
 
+/* ---------- batch optimize ---------- */
+
 async function runBatchOptimize() {
-  const maxwEl = $('#batch-maxwidth');
-  const qEl = $('#batch-quality');
-  const mkEl = $('#batch-minkb');
-  const modeEl = $('#batch-mode');
+  const maxwEl = $id('batch-maxwidth');
+  const qEl = $id('batch-quality');
+  const mkEl = $id('batch-minkb');
+  const modeEl = $id('batch-mode');
   const body = {
     dryRun: (modeEl ? modeEl.value : 'dry') === 'dry',
     maxWidth: parseInt(maxwEl ? maxwEl.value : '1600', 10) || 1600,
@@ -477,12 +665,12 @@ async function runBatchOptimize() {
     backup: true
   };
 
-  const btn = $('#run-batch');
+  const btn = $id('run-batch');
   const oldText = btn.textContent;
   btn.disabled = true;
-  btn.textContent = '处理中，请稍候…';
-  const report = $('#batch-report');
-  if (report) report.innerHTML = '<span class="muted">正在处理，图片较多时需要一会儿…</span>';
+  btn.textContent = '\u5904\u7406\u4e2d\uff0c\u8bf7\u7a0d\u5019\u2026';
+  const report = $id('batch-report');
+  if (report) report.innerHTML = '<span class="muted">\u6b63\u5728\u5904\u7406\uff0c\u56fe\u7247\u8f83\u591a\u65f6\u9700\u8981\u4e00\u4f1a\u513f\u2026</span>';
 
   try {
     const res = await api('/api/images/optimize-batch', {
@@ -491,18 +679,18 @@ async function runBatchOptimize() {
       body: JSON.stringify(body)
     });
 
-    const hint = $('#batch-hint');
-    if (hint) hint.textContent = (body.dryRun ? '预览' : '已执行') + ' · 省 ' + res.savedPercent + '%';
+    const hint = $id('batch-hint');
+    if (hint) hint.textContent = (body.dryRun ? '\u9884\u89c8' : '\u5df2\u6267\u884c') + ' \u00b7 \u7701 ' + res.savedPercent + '%';
 
     if (report) {
       const rows = (res.results || []).map(function (r) {
         if (r.action === 'optimized') {
           return '<div class="dimension-result"><div></div><div>'
             + '<div class="dim-name">' + esc(r.path) + '</div>'
-            + '<div class="dim-meta">' + r.beforeLabel + ' → <span class="crop-ok">' + r.afterLabel + '</span>（省 ' + r.savedPercent + '%）</div>'
-            + '</div><span class="dimension-status">已优化</span></div>';
+            + '<div class="dim-meta">' + r.beforeLabel + ' \u2192 <span class="crop-ok">' + r.afterLabel + '</span>\uff08\u7701 ' + r.savedPercent + '%\uff09</div>'
+            + '</div><span class="dimension-status">\u5df2\u4f18\u5316</span></div>';
         }
-        const labels = { 'skipped-small': '太小，跳过', 'kept-original': '已是最优', 'error': '出错' };
+        const labels = { 'skipped-small': '\u592a\u5c0f\uff0c\u8df3\u8fc7', 'kept-original': '\u5df2\u662f\u6700\u4f18', 'error': '\u51fa\u9519' };
         const label = labels[r.action] || r.action;
         return '<div class="dimension-result"><div></div><div>'
           + '<div class="dim-name">' + esc(r.path) + '</div>'
@@ -511,54 +699,33 @@ async function runBatchOptimize() {
       }).join('');
 
       report.innerHTML = '<div class="notice" style="margin-bottom:10px"><strong>'
-        + (body.dryRun ? '预览结果' : '优化完成') + '：</strong>共 ' + res.count + ' 张，优化 ' + res.optimized
-        + ' 张，' + res.totalBeforeLabel + ' → ' + res.totalAfterLabel
-        + '，共省 <strong>' + res.savedPercent + '%</strong>'
-        + (body.dryRun ? '。这只是预览，未修改任何文件。' : '。原图已备份到 admin-tools/backups/images/')
+        + (body.dryRun ? '\u9884\u89c8\u7ed3\u679c' : '\u4f18\u5316\u5b8c\u6210') + '\uff1a</strong>\u5171 ' + res.count + ' \u5f20\uff0c\u4f18\u5316 ' + res.optimized
+        + ' \u5f20\uff0c' + res.totalBeforeLabel + ' \u2192 ' + res.totalAfterLabel
+        + '\uff0c\u5171\u7701 <strong>' + res.savedPercent + '%</strong>'
+        + (body.dryRun ? '\u3002\u8fd9\u53ea\u662f\u9884\u89c8\uff0c\u672a\u4fee\u6539\u4efb\u4f55\u6587\u4ef6\u3002' : '\u3002\u539f\u56fe\u5df2\u5907\u4efd\u5230 admin-tools/backups/images/')
         + '</div>' + rows;
     }
 
     if (!body.dryRun) await loadMedia();
-    toast('批量优化完成：省 ' + res.savedPercent + '%', 5000);
+    toast('\u6279\u91cf\u4f18\u5316\u5b8c\u6210\uff1a\u7701 ' + res.savedPercent + '%', 5000);
   } catch (e) {
-    if (report) report.innerHTML = '<span class="muted">失败：' + esc(e.message) + '</span>';
-    toast('批量优化失败：' + e.message, 5000);
+    if (report) report.innerHTML = '<span class="muted">\u5931\u8d25\uff1a' + esc(e.message) + '</span>';
+    toast('\u6279\u91cf\u4f18\u5316\u5931\u8d25\uff1a' + e.message, 5000);
   } finally {
     btn.disabled = false;
     btn.textContent = oldText;
   }
 }
 
+/* ---------- init ---------- */
+
 function initCropper() {
   loadCapabilities();
 
-  // stretch warning + colour picker bindings
-  const fitModeSel = $('#crop-fitmode');
-  if (fitModeSel && !fitModeSel._bound) {
-    fitModeSel._bound = true;
-    fitModeSel.addEventListener('change', function () {
-      const warn = $('#stretch-warn');
-      if (warn) warn.style.display = fitModeSel.value === 'stretch' ? 'block' : 'none';
-      ['crop-padmode', 'crop-padcolor'].forEach(function (id) {
-        const el = $('#' + id);
-        if (el && el.closest('.field')) el.closest('.field').style.opacity = fitModeSel.value === 'pad' ? '1' : '.45';
-      });
-    });
-  }
-  const padColorText = $('#crop-padcolor');
-  const padColorPick = $('#crop-padcolor-pick');
-  if (padColorPick && padColorText && !padColorPick._bound) {
-    padColorPick._bound = true;
-    padColorPick.addEventListener('input', function () { padColorText.value = padColorPick.value; });
-    padColorText.addEventListener('input', function () {
-      const v = padColorText.value.trim();
-      if (/^#[0-9a-fA-F]{6}$/.test(v)) padColorPick.value = v;
-    });
-  }
-  const openBtn = $('#open-cropper');
-  if (openBtn) openBtn.addEventListener('click', function () { $('#cropper-file-input').click(); });
+  const openBtn = $id('open-cropper');
+  if (openBtn) openBtn.addEventListener('click', function () { $id('cropper-file-input').click(); });
 
-  const fileInput = $('#cropper-file-input');
+  const fileInput = $id('cropper-file-input');
   if (fileInput) {
     fileInput.addEventListener('change', function (e) {
       const files = Array.prototype.slice.call(e.target.files || []);
@@ -567,40 +734,77 @@ function initCropper() {
     });
   }
 
-  const ratioSel = $('#crop-ratio');
-  if (ratioSel) {
-    ratioSel.addEventListener('change', function () {
-      cropper.ratio = ratioSel.value;
-      resetCropBox();
-      updateCropInfo();
+  // ratio buttons
+  document.querySelectorAll('.ratio-btn').forEach(function (b) {
+    b.addEventListener('click', function () {
+      selectRatioButton(b.dataset.ratio);
+      resetSelection();
+    });
+  });
+
+  // zoom controls
+  const zOut = $id('zoom-out');
+  const zIn = $id('zoom-in');
+  const zRange = $id('zoom-range');
+  const zFit = $id('zoom-fit');
+  if (zOut) zOut.addEventListener('click', function () { setZoom(cropper.zoom / 1.25); });
+  if (zIn) zIn.addEventListener('click', function () { setZoom(cropper.zoom * 1.25); });
+  if (zRange) zRange.addEventListener('input', function () {
+    setZoom(cropper.fitZoom * (parseInt(zRange.value, 10) / 100));
+  });
+  if (zFit) zFit.addEventListener('click', function () { fitToViewport(); resetSelection(); });
+
+  // footer buttons
+  const closeBtn = $id('cropper-close');
+  if (closeBtn) closeBtn.addEventListener('click', function () { closeCropper(true); });
+  const cancelBtn = $id('cropper-cancel');
+  if (cancelBtn) cancelBtn.addEventListener('click', function () { closeCropper(true); });
+  const resetBtn = $id('cropper-reset');
+  if (resetBtn) resetBtn.addEventListener('click', function () { resetSelection(); });
+  const applyBtn = $id('cropper-apply');
+  if (applyBtn) applyBtn.addEventListener('click', function () { applyCrop(true); });
+  const skipBtn = $id('cropper-skip');
+  if (skipBtn) skipBtn.addEventListener('click', function () { applyCrop(true); });
+  const batchBtn = $id('run-batch');
+  if (batchBtn) batchBtn.addEventListener('click', runBatchOptimize);
+
+  const maxw = $id('crop-maxwidth');
+  if (maxw) maxw.addEventListener('input', updateCropInfo);
+
+  // stretch warning + colour picker bindings
+  const fitModeSel = $id('crop-fitmode');
+  if (fitModeSel && !fitModeSel._bound) {
+    fitModeSel._bound = true;
+    fitModeSel.addEventListener('change', function () {
+      const warn = $id('stretch-warn');
+      if (warn) warn.style.display = fitModeSel.value === 'stretch' ? 'block' : 'none';
+      ['crop-padmode', 'crop-padcolor'].forEach(function (id) {
+        const el = $id(id);
+        if (el && el.closest('.field')) el.closest('.field').style.opacity = fitModeSel.value === 'pad' ? '1' : '.45';
+      });
+    });
+  }
+  const padColorText = $id('crop-padcolor');
+  const padColorPick = $id('crop-padcolor-pick');
+  if (padColorPick && padColorText && !padColorPick._bound) {
+    padColorPick._bound = true;
+    padColorPick.addEventListener('input', function () { padColorText.value = padColorPick.value; });
+    padColorText.addEventListener('input', function () {
+      const v = padColorText.value.trim();
+      if (/^#[0-9a-fA-F]{6}$/.test(v)) padColorPick.value = v;
     });
   }
 
-  const maxw = $('#crop-maxwidth');
-  if (maxw) maxw.addEventListener('input', updateCropInfo);
-
-  const closeBtn = $('#cropper-close');
-  if (closeBtn) closeBtn.addEventListener('click', function () { closeCropper(true); });
-  const cancelBtn = $('#cropper-cancel');
-  if (cancelBtn) cancelBtn.addEventListener('click', function () { closeCropper(true); });
-  const resetBtn = $('#cropper-reset');
-  if (resetBtn) resetBtn.addEventListener('click', function () { resetCropBox(); updateCropInfo(); });
-  const applyBtn = $('#cropper-apply');
-  if (applyBtn) applyBtn.addEventListener('click', function () { applyCrop(true); });
-  const skipBtn = $('#cropper-skip');
-  if (skipBtn) skipBtn.addEventListener('click', function () { applyCrop(true); });
-  const batchBtn = $('#run-batch');
-  if (batchBtn) batchBtn.addEventListener('click', runBatchOptimize);
-
   window.addEventListener('resize', function () {
-    const modal = $('#cropper-modal');
-    if (modal && modal.classList.contains('open')) {
-      drawCropper();
-      paintBox();
+    const m = $id('cropper-modal');
+    if (m && m.classList.contains('open') && cropper.img) {
+      const prevFit = cropper.fitZoom;
+      fitToViewport();
+      if (prevFit && Math.abs(prevFit - cropper.fitZoom) > 0.001) resetSelection();
     }
   });
 
-  bindCropDrag();
+  bindCropperEvents();
 }
 
 if (document.readyState === 'loading') {
@@ -608,6 +812,7 @@ if (document.readyState === 'loading') {
 } else {
   initCropper();
 }
+
 
 /* ===== Smart upload: compliant images upload directly, others must be edited ===== */
 /* Replaces uploadFiles / uploadSingle so the whole app shares one gatekeeper. */

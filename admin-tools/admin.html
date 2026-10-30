@@ -26,6 +26,53 @@
 .media-actions .small-btn{width:100%;font-size:10px;padding:6px 4px}
 .media-actions .small-btn:nth-child(3){grid-column:1/-1}
 .media-flags{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;min-height:18px}
+
+/* ---- Figma-style cropper ---- */
+.crop-modal{width:min(1100px,96vw)!important;max-height:94vh;display:flex;flex-direction:column;padding:0;overflow:hidden}
+.crop-head{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:16px;flex:none}
+.crop-head h2{font:20px Georgia,serif;font-weight:400;margin:0}
+.crop-head-actions{display:flex;align-items:center;gap:10px}
+.crop-ratio-group{display:flex;gap:2px;background:#eef0ea;border-radius:7px;padding:3px}
+.ratio-btn{border:0;background:transparent;color:#4a544c;font-size:11px;padding:6px 9px;border-radius:5px;cursor:pointer;white-space:nowrap}
+.ratio-btn:hover{background:#e2e6dd}
+.ratio-btn.active{background:#354b3a;color:#fff}
+.crop-workspace{flex:1;min-height:0;display:flex;flex-direction:column;background:#2b2f2b}
+.crop-viewport{flex:1;min-height:340px;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;cursor:grab}
+.crop-viewport.panning{cursor:grabbing}
+.crop-canvas-wrap{position:relative;isolation:isolate;transform-origin:center center;user-select:none;line-height:0;box-shadow:0 0 0 1px #00000055}
+.crop-canvas-wrap img{display:block;max-width:none;-webkit-user-drag:none;user-select:none;pointer-events:none;position:relative;z-index:1}
+.crop-shade{position:absolute;inset:0;pointer-events:none;z-index:2}
+.crop-shade>div{position:absolute;background:rgba(12,16,13,.55)}
+.shade-top{left:0;right:0;top:0}
+.shade-bottom{left:0;right:0;bottom:0}
+.shade-left{left:0;top:0;bottom:0}
+.shade-right{right:0;top:0;bottom:0}
+.crop-selection{position:absolute;border:1px solid #fff;box-shadow:0 0 0 1px #0006;cursor:move;touch-action:none;z-index:3}
+.crop-thirds{position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(to right,#ffffff40 1px,transparent 1px),linear-gradient(to bottom,#ffffff40 1px,transparent 1px);
+  background-size:33.333% 33.333%}
+.crop-handle{position:absolute;z-index:4;background:#fff;border:1px solid #2b352d;border-radius:2px;box-shadow:0 1px 3px #0004}
+.crop-handle.h-nw,.crop-handle.h-ne,.crop-handle.h-sw,.crop-handle.h-se{width:12px;height:12px}
+.crop-handle.h-n,.crop-handle.h-s{width:22px;height:6px;left:50%;margin-left:-11px}
+.crop-handle.h-e,.crop-handle.h-w{width:6px;height:22px;top:50%;margin-top:-11px}
+.crop-handle.h-nw{left:-6px;top:-6px;cursor:nwse-resize}
+.crop-handle.h-ne{right:-6px;top:-6px;cursor:nesw-resize}
+.crop-handle.h-sw{left:-6px;bottom:-6px;cursor:nesw-resize}
+.crop-handle.h-se{right:-6px;bottom:-6px;cursor:nwse-resize}
+.crop-handle.h-n{top:-3px;cursor:ns-resize}
+.crop-handle.h-s{bottom:-3px;cursor:ns-resize}
+.crop-handle.h-e{right:-3px;cursor:ew-resize}
+.crop-handle.h-w{left:-3px;cursor:ew-resize}
+.crop-zoom-bar{flex:none;display:flex;align-items:center;gap:8px;justify-content:center;padding:9px 14px;background:#232823;border-top:1px solid #0006}
+.zoom-btn{width:26px;height:26px;border:1px solid #4a544c;background:#2f3630;color:#dfe5db;border-radius:5px;cursor:pointer;font-size:15px;line-height:1}
+.zoom-btn:hover{background:#3b443c}
+#zoom-range{width:180px;accent-color:#9fb79c}
+.zoom-label{color:#b6c1b2;font-size:11px;min-width:42px;text-align:center}
+.btn.tiny{padding:5px 9px;font-size:10px;background:#2f3630;color:#dfe5db;border-color:#4a544c}
+.crop-toolbar{flex:none;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 20px;border-top:1px solid var(--line);background:#fbfcf9;flex-wrap:wrap}
+.crop-stat{font-size:11px;color:#596255;display:flex;flex-direction:column;gap:3px}
+.crop-out{color:#3f7a4c;font-weight:600}
+.crop-actions{display:flex;gap:8px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -199,42 +246,70 @@
 </div>
 <div class="modal-backdrop" id="editor-modal"><div class="modal"><div class="modal-head"><h2 id="editor-title">编辑商品</h2><button class="btn" id="modal-close">关闭 ×</button></div><div class="modal-body" id="editor-body"></div><div class="modal-foot"><button class="btn danger" id="delete-record">删除</button><div class="actions"><button class="btn" id="cancel-edit">取消</button><button class="btn primary" id="save-record">保存</button></div></div></div></div>
 
-<div class="modal-backdrop" id="cropper-modal"><div class="modal" style="width:min(980px,100%)">
-  <div class="modal-head"><h2>裁剪 <span id="cropper-filename" class="muted" style="font-size:12px"></span></h2><button class="btn" id="cropper-close">关闭 ×</button></div>
-  <div class="modal-body">
-    <div class="crop-stage" id="crop-stage">
-      <canvas id="crop-canvas"></canvas>
-      <div class="crop-box" id="crop-box">
-        <span class="crop-handle nw" data-h="nw"></span><span class="crop-handle ne" data-h="ne"></span>
-        <span class="crop-handle sw" data-h="sw"></span><span class="crop-handle se" data-h="se"></span>
-        <span class="crop-grid"></span>
-      </div>
+<div class="modal-backdrop" id="cropper-modal"><div class="modal crop-modal">
+  <div class="modal-head crop-head">
+    <div>
+      <h2>裁剪图片</h2>
+      <span id="cropper-filename" class="muted" style="font-size:11px"></span>
     </div>
-    <div class="crop-info" id="crop-info">拖拽选框调整构图</div>
-    <div class="form-grid">
-      <label class="field">输出预览尺寸<input id="crop-outsize" readonly></label>
-      <label class="field">操作<input id="crop-hint" readonly value="拖拽中间移动，拖拽四角缩放"></label>
+    <div class="crop-head-actions">
+      <div class="crop-ratio-group" id="crop-ratio-group">
+        <button type="button" class="ratio-btn" data-ratio="free">自由</button>
+        <button type="button" class="ratio-btn" data-ratio="1">1:1</button>
+        <button type="button" class="ratio-btn" data-ratio="1.3333">4:3</button>
+        <button type="button" class="ratio-btn" data-ratio="1.7778">16:9</button>
+        <button type="button" class="ratio-btn" data-ratio="0.75">3:4</button>
+        <button type="button" class="ratio-btn" data-ratio="0.8">4:5</button>
+      </div>
+      <button class="btn" id="cropper-close">关闭 ×</button>
     </div>
   </div>
-  <div class="modal-foot">
-    <div class="actions"><button class="btn" id="cropper-reset">重置选框</button><button class="btn" id="cropper-skip">不裁剪直接压缩</button></div>
-    <div class="actions"><button class="btn" id="cropper-cancel">取消</button><button class="btn primary" id="cropper-apply">保存到素材库</button></div>
+
+  <div class="crop-workspace" id="crop-workspace">
+    <div class="crop-viewport" id="crop-viewport">
+      <div class="crop-canvas-wrap" id="crop-canvas-wrap">
+        <img id="crop-img" alt="" draggable="false">
+        <div class="crop-shade">
+          <div class="shade-top"></div><div class="shade-left"></div>
+          <div class="shade-right"></div><div class="shade-bottom"></div>
+        </div>
+        <div class="crop-selection" id="crop-selection">
+          <span class="crop-handle h-nw" data-h="nw"></span>
+          <span class="crop-handle h-n"  data-h="n"></span>
+          <span class="crop-handle h-ne" data-h="ne"></span>
+          <span class="crop-handle h-e"  data-h="e"></span>
+          <span class="crop-handle h-se" data-h="se"></span>
+          <span class="crop-handle h-s"  data-h="s"></span>
+          <span class="crop-handle h-sw" data-h="sw"></span>
+          <span class="crop-handle h-w"  data-h="w"></span>
+          <div class="crop-thirds"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="crop-zoom-bar">
+      <button type="button" class="zoom-btn" id="zoom-out">−</button>
+      <input type="range" id="zoom-range" min="20" max="300" value="100">
+      <button type="button" class="zoom-btn" id="zoom-in">+</button>
+      <span class="zoom-label" id="zoom-label">100%</span>
+      <button type="button" class="btn tiny" id="zoom-fit">适应</button>
+    </div>
+  </div>
+
+  <div class="crop-toolbar">
+    <div class="crop-stat">
+      <span id="crop-info">拖拽框选裁剪区域</span>
+      <span class="crop-out" id="crop-outsize"></span>
+    </div>
+    <div class="crop-actions">
+      <button class="btn" id="cropper-reset">重置</button>
+      <button class="btn" id="cropper-skip">跳过裁剪</button>
+      <button class="btn" id="cropper-cancel">取消</button>
+      <button class="btn primary" id="cropper-apply">应用并保存</button>
+    </div>
   </div>
 </div></div>
 <style>
-.crop-stage{position:relative;background:#1b231d;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;min-height:240px;max-height:62vh}
-.crop-stage canvas{display:block;max-width:100%;max-height:62vh}
-.crop-box{position:absolute;border:2px solid #fff;box-shadow:0 0 0 9999px rgba(10,16,12,.62);cursor:move;touch-action:none}
-.crop-box .crop-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(to right,#fff3 1px,transparent 1px),linear-gradient(to bottom,#fff3 1px,transparent 1px);background-size:33.33% 33.33%}
-.crop-handle{position:absolute;width:16px;height:16px;background:#fff;border:1px solid #4a5a4d;border-radius:3px}
-.crop-handle.nw{left:-9px;top:-9px;cursor:nwse-resize}.crop-handle.ne{right:-9px;top:-9px;cursor:nesw-resize}
-.crop-handle.sw{left:-9px;bottom:-9px;cursor:nesw-resize}.crop-handle.se{right:-9px;bottom:-9px;cursor:nwse-resize}
-.crop-info{font-size:11px;color:#596255;padding:9px 0 3px}
-.crop-ok{color:#3f7a4c;font-weight:600}.crop-warn{color:#a0642c;font-weight:600}
-.media-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px}
-.media-actions .small-btn{width:100%;font-size:10px;padding:6px 4px}
-.media-actions .small-btn:nth-child(3){grid-column:1/-1}
-.media-flags{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;min-height:18px}
 </style>
 
 <div class="toast" id="toast"></div>
