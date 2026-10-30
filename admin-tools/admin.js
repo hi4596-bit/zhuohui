@@ -346,11 +346,14 @@ function resetSelection() {
 
   let w, h;
   if (r) {
-    if (b.w / b.h > r) { h = b.h * 0.92; w = h * r; }
-    else { w = b.w * 0.92; h = w / r; }
+    // largest rectangle with ratio r that fits inside the image, flush to the edges
+    const imgR = b.w / b.h;
+    if (imgR > r) { h = b.h; w = h * r; }
+    else { w = b.w; h = w / r; }
   } else {
-    w = b.w * 0.88;
-    h = b.h * 0.88;
+    // free mode: the selection IS the whole image
+    w = b.w;
+    h = b.h;
   }
   cropper.sel = { x: (b.w - w) / 2, y: (b.h - h) / 2, w: w, h: h };
   paintSelection();
@@ -499,20 +502,58 @@ function bindCropperEvents() {
     let h = bottom - top;
 
     if (r) {
-      // lock aspect ratio from the anchored corner
-      if (hd === 'n' || hd === 's') {
+      // ---- aspect-locked resize ----
+      // Corners anchor on the opposite corner.
+      // Edge midpoints grow symmetrically around the selection centre.
+      const cx = d.box.x + d.box.w / 2;
+      const cy = d.box.y + d.box.h / 2;
+      const isEdgeN = (hd === 'n'), isEdgeS = (hd === 's');
+      const isEdgeE = (hd === 'e'), isEdgeW = (hd === 'w');
+
+      if (isEdgeN || isEdgeS) {
+        // vertical edge: height is driven, width follows, centred horizontally
+        h = Math.max(24, h);
         w = h * r;
-      } else if (hd === 'e' || hd === 'w') {
+        if (isEdgeN) { bottom = d.box.y + d.box.h; top = bottom - h; }
+        else { top = d.box.y; bottom = top + h; }
+        left = cx - w / 2;
+        right = cx + w / 2;
+      } else if (isEdgeE || isEdgeW) {
+        // horizontal edge: width is driven, height follows, centred vertically
+        w = Math.max(24, w);
         h = w / r;
+        if (isEdgeW) { right = d.box.x + d.box.w; left = right - w; }
+        else { left = d.box.x; right = left + w; }
+        top = cy - h / 2;
+        bottom = cy + h / 2;
       } else {
+        // corner: opposite corner stays put
+        h = w / r;
+        if (hd.indexOf('w') >= 0) left = d.box.x + d.box.w - w;
+        else right = left + w;
+        if (hd.indexOf('n') >= 0) top = d.box.y + d.box.h - h;
+        else bottom = top + h;
+      }
+
+      // keep inside the image, shrinking the ratio box if needed
+      if (left < 0) {
+        const over = -left;
+        left = 0;
+        if (isEdgeE || isEdgeW || hd.indexOf('w') >= 0) right = Math.min(b.w, right + over);
+        w = right - left;
         h = w / r;
       }
-      if (hd.indexOf('w') >= 0) left = right - w;
-      if (hd.indexOf('n') >= 0) top = bottom - h;
-      if (left < 0) { left = 0; w = right; h = w / r; if (hd.indexOf('n') >= 0) top = bottom - h; }
-      if (top < 0) { top = 0; h = bottom; w = h * r; if (hd.indexOf('w') >= 0) left = right - w; }
+      if (top < 0) {
+        const over = -top;
+        top = 0;
+        if (isEdgeS || isEdgeN || hd.indexOf('n') >= 0) bottom = Math.min(b.h, bottom + over);
+        h = bottom - top;
+        w = h * r;
+      }
       if (left + w > b.w) { w = b.w - left; h = w / r; }
       if (top + h > b.h) { h = b.h - top; w = h * r; }
+      if (isEdgeN || isEdgeS) left = Math.min(Math.max(0, cx - w / 2), b.w - w);
+      if (isEdgeE || isEdgeW) top = Math.min(Math.max(0, cy - h / 2), b.h - h);
     }
 
     s.x = Math.max(0, left);
@@ -561,6 +602,12 @@ function bindCropperEvents() {
   document.addEventListener('touchmove', onPointerMove, { passive: false });
   document.addEventListener('mouseup', endPointer);
   document.addEventListener('touchend', endPointer);
+
+  // double-click inside the image resets the selection to full
+  wrap.addEventListener('dblclick', function (e) {
+    e.preventDefault();
+    resetSelection();
+  });
 
   // wheel zoom
   vp.addEventListener('wheel', function (e) {
