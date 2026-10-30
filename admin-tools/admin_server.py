@@ -357,6 +357,25 @@ class Handler(SimpleHTTPRequestHandler):
                     files.append(entry)
             files.sort(key=lambda x: (not x['path'].startswith('assets/uploads/'), x['name'].lower()))
             return self.send_json(files)
+        if path == '/api/image/raw':
+            # stream an existing asset back to the browser so it can be re-cropped
+            qs = parsed.query or ''
+            rel = unquote(qs.split('path=', 1)[1]) if 'path=' in qs else ''
+            target = (SITE / rel).resolve()
+            try:
+                target.relative_to(SITE)
+            except ValueError:
+                return self.send_json({'error': '非法路径'}, 400)
+            if not target.is_file() or target.suffix.lower() not in ALLOWED_EXT:
+                return self.send_json({'error': '文件不存在'}, 404)
+            body = target.read_bytes()
+            self.send_response(200)
+            self.send_header('Content-Type', mimetypes.guess_type(str(target))[0] or 'application/octet-stream')
+            self.send_header('Cache-Control', 'no-store')
+            self.send_header('Content-Length', str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
         if path == '/api/capabilities':
             # lets the UI know whether server-side crop/compress is available
             return self.send_json({
@@ -643,7 +662,7 @@ class Handler(SimpleHTTPRequestHandler):
         try:
             candidate.relative_to(SITE)
         except ValueError:
-            return str(SITE / '__not_found__')
+                return self.send_json({'error': '\u975e\u6cd5\u8def\u5f84'}, 400)
         return str(candidate)
 
 

@@ -55,7 +55,11 @@ async function loadMedia() {
         + '<div class="media-name">' + esc(m.name) + '</div>'
         + '<div class="media-dimensions" data-media-dimensions="' + i + '">读取中…</div>'
         + '<div class="media-flags" data-media-flags="' + i + '"></div>'
-        + '<button class="small-btn" data-copy-path="' + esc(m.path) + '">复制相对路径</button>'
+        + '<div class="media-actions">'
+        + '<button class="small-btn" data-edit-image="' + esc(m.path) + '">编辑图片</button>'
+        + '<button class="small-btn" data-replace-image="' + esc(m.path) + '">替换</button>'
+        + '<button class="small-btn" data-copy-path="' + esc(m.path) + '">复制路径</button>'
+        + '</div>'
         + '</div></article>';
     }).join('') || '<div class="empty">素材目录暂无图片。点击上传图片开始使用。</div>';
 
@@ -86,7 +90,11 @@ function paintMediaLabels(index, media, w, h, bytes) {
 
   if (!flagEl) return;
 
-  const rule = dimensionRules[currentPurpose()] || dimensionRules.product;
+  const usedAs = inferImagePurpose(media.path);
+  const rule = usedAs ? dimensionRules[usedAs] : (dimensionRules[currentPurpose()] || dimensionRules.product);
+  const purposeName = (rule.title || '').replace(/（[^）]*）/g, '');
+  const scope = usedAs ? ('用作' + purposeName) : '按当前用途';
+
   const issues = [];
   if (w < rule.minW || h < rule.minH) issues.push('尺寸偏小');
   if (ratio < rule.range[0] || ratio > rule.range[1]) issues.push('比例不符');
@@ -97,17 +105,31 @@ function paintMediaLabels(index, media, w, h, bytes) {
   if (w < 800 && h < 800) needsWork.push('<800px');
 
   const parts = [];
+  const sep = ' · ';
   if (issues.length === 0) {
-    parts.push('<span class="dimension-status" style="font-size:9px;padding:3px 6px">符合' + esc(rule.title || '规格') + '</span>');
+    parts.push('<span class="dimension-status" style="font-size:9px;padding:3px 6px" title="'
+      + esc(scope) + '">符合规格</span>');
   } else {
     parts.push('<span class="dimension-status warn" style="font-size:9px;padding:3px 6px" title="'
-      + esc(issues.join('；')) + '">' + esc(issues.join(' · ')) + '</span>');
+      + esc(scope + '：' + issues.join('；')) + '">' + esc(issues.join(sep)) + '</span>');
   }
   if (needsWork.length) {
     parts.push('<span class="dimension-status bad" style="font-size:9px;padding:3px 6px" title="建议优化">待优化 '
       + esc(needsWork.join(' ')) + '</span>');
   }
   flagEl.innerHTML = parts.join(' ');
+}
+
+/** Work out what an asset is actually used for by scanning the live data. */
+function inferImagePurpose(path) {
+  if (!path) return null;
+  const hit = function (v) { return v === path; };
+  if ((state.colors || []).some(function (c) { return hit(c.heroImage); })) return 'banner';
+  if ((state.colors || []).some(function (c) { return hit(c.cardImage); })) return 'color';
+  if ((state.homepage && state.homepage.modules || []).some(function (m) { return hit(m.bannerImage); })) return 'banner';
+  if ((state.homepage && state.homepage.areas || []).some(function (a) { return hit(a.image); })) return 'area';
+  if ((state.products || []).some(function (p) { return hit(p.image); })) return 'product';
+  return null;
 }
 
 function download(name,data,type='application/json'){const blob=new Blob([type==='text/csv'?data:JSON.stringify(data,null,2)],{type:type==='text/csv'?'text/csv;charset=utf-8':'application/json;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)}
@@ -743,3 +765,132 @@ async function uploadSingle(useOverride) {
   const paths = await uploadWithGate(useOverride || currentPurpose());
   return paths.length ? paths[0] : null;
 }
+
+/* ===== Edit / replace actions for existing library images ===== */
+
+/** Load an existing asset into the cropper. */
+async function editExistingImage(path) {
+  if (cropper.caps && cropper.caps.pillow === false) {
+    toast('未安装 Pillow，无法编辑图片。请运行 pip install Pillow', 6000);
+    return;
+  }
+  try {
+    const url = '/api/image/raw?path=' + encodeURIComponent(path);
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('无法读取图片（' + resp.status + '）');
+    const blob = await resp.blob();
+    const name = path.split('/').pop();
+    const file = new File([blob], name, { type: blob.type || 'image/webp' });
+
+    openCropper(file, {
+      purpose: currentPurpose(),
+      reason: ['这是素材库中的现有图片，编辑后会生成新文件并自动替换引用'],
+      sourcePath: path,
+      onSaved: async function (newPath) {
+        await swapImageReference(path, newPath);
+        await loadMedia();
+      }
+    });
+  } catch (e) {
+    toast('读取失败：' + e.message, 5000);
+  }
+}
+
+/** Pick a new file and replace the existing one. */
+async function replaceExistingImage(path) {
+  const file = await new Promise(resolve => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = () => resolve((input.files || [])[0] || null);
+    input.click();
+  });
+  if (!file) return;
+
+  const purpose = currentPurpose();
+  const check = await checkCompliance(file, purpose);
+
+  if (check.ok) {
+    // compliant: upload then repoint references
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await api('/api/upload', { method: 'POST', body: fd });
+      await swapImageReference(path, res.path);
+      await loadMedia();
+      toast('已替换为新图片（符合规格，直接上传）', 4000);
+    } catch (e) {
+      toast('替换失败：' + e.message, 5000);
+    }
+    return;
+  }
+
+  // not compliant -> force the editor
+  const go = await askEditDecision([{ file: file, issues: check.issues }], purpose);
+  if (!go) { toast('已取消替换', 3000); return; }
+
+  openCropper(file, {
+    purpose: purpose,
+    reason: check.issues,
+    sourcePath: path,
+    onSaved: async function (newPath) {
+      await swapImageReference(path, newPath);
+      await loadMedia();
+    }
+  });
+}
+
+/** Point every JSON reference from oldPath to newPath. */
+async function swapImageReference(oldPath, newPath) {
+  if (!oldPath || !newPath || oldPath === newPath) return;
+  const refs = [];
+  const look = [['products', state.products], ['colors', state.colors]];
+  look.forEach(([key, list]) => {
+    (list || []).forEach(function (item, idx) {
+      ['image', 'heroImage', 'cardImage', 'bannerImage'].forEach(function (field) {
+        if (item[field] === oldPath) refs.push({ key: key, idx: idx, field: field });
+      });
+    });
+  });
+  (state.homepage?.areas || []).forEach(function (area, idx) {
+    if (area.image === oldPath) refs.push({ key: 'homepage-area', idx: idx, field: 'image' });
+  });
+  (state.homepage?.modules || []).forEach(function (mod, idx) {
+    if (mod.bannerImage === oldPath) refs.push({ key: 'module', idx: idx, field: 'bannerImage' });
+  });
+
+  if (!refs.length) {
+    toast('已生成新图片，但没有其他数据引用旧路径（可能需要手动替换）', 5000);
+    return;
+  }
+
+  // apply locally then persist
+  refs.forEach(function (r) {
+    if (r.key === 'products') state.products[r.idx][r.field] = newPath;
+    else if (r.key === 'colors') state.colors[r.idx][r.field] = newPath;
+    else if (r.key === 'homepage-area') state.homepage.areas[r.idx][r.field] = newPath;
+    else if (r.key === 'module') state.homepage.modules[r.idx][r.field] = newPath;
+  });
+
+  const saves = [];
+  if (refs.some(r => r.key === 'products')) saves.push(saveData('products'));
+  if (refs.some(r => r.key === 'colors')) saves.push(saveData('colors'));
+  if (refs.some(r => r.key === 'homepage-area' || r.key === 'module')) saves.push(saveData('homepage'));
+
+  try {
+    await Promise.all(saves);
+    renderAll();
+    toast('已替换引用：' + refs.length + ' 处（商品/颜色/首页）', 5000);
+  } catch (e) {
+    toast('更新引用失败：' + e.message, 5000);
+  }
+}
+
+/** Wire the buttons via delegated click handling. */
+document.addEventListener('click', function (e) {
+  const editBtn = e.target.closest('[data-edit-image]');
+  if (editBtn) { e.preventDefault(); editExistingImage(editBtn.dataset.editImage); return; }
+
+  const repBtn = e.target.closest('[data-replace-image]');
+  if (repBtn) { e.preventDefault(); replaceExistingImage(repBtn.dataset.replaceImage); return; }
+});

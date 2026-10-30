@@ -22,6 +22,10 @@
 .media-dimensions .dim-badge{display:inline-block;padding:2px 5px;border-radius:4px;background:#edf1e9;margin-top:3px}
 @media(max-width:700px){.dimension-tool{align-items:stretch;flex-direction:column}.dimension-result{grid-template-columns:44px minmax(0,1fr)}.dimension-result img{width:44px;height:44px}.dimension-result .dimension-status{grid-column:2;justify-self:start}}
 
+.media-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px}
+.media-actions .small-btn{width:100%;font-size:10px;padding:6px 4px}
+.media-actions .small-btn:nth-child(3){grid-column:1/-1}
+.media-flags{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;min-height:18px}
 </style>
 </head>
 <body>
@@ -227,6 +231,10 @@
 .crop-handle.sw{left:-9px;bottom:-9px;cursor:nesw-resize}.crop-handle.se{right:-9px;bottom:-9px;cursor:nwse-resize}
 .crop-info{font-size:11px;color:#596255;padding:9px 0 3px}
 .crop-ok{color:#3f7a4c;font-weight:600}.crop-warn{color:#a0642c;font-weight:600}
+.media-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px}
+.media-actions .small-btn{width:100%;font-size:10px;padding:6px 4px}
+.media-actions .small-btn:nth-child(3){grid-column:1/-1}
+.media-flags{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;min-height:18px}
 </style>
 
 <div class="toast" id="toast"></div>
