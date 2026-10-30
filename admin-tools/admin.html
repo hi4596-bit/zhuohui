@@ -73,6 +73,13 @@
 .crop-stat{font-size:11px;color:#596255;display:flex;flex-direction:column;gap:3px}
 .crop-out{color:#3f7a4c;font-weight:600}
 .crop-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+.media-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:0 0 14px}.media-stat{background:#f7f8f5;border:1px solid #e7eae2;border-radius:8px;padding:11px}.media-stat strong{display:block;font:22px Georgia,serif}.media-stat span{font-size:10px;color:var(--muted)}
+.media-toolbar{display:grid;grid-template-columns:minmax(180px,1.5fr) repeat(3,minmax(130px,1fr));gap:8px;margin-bottom:12px}.media-toolbar input,.media-toolbar select,.asset-picker-search{width:100%;padding:10px;border:1px solid var(--line);border-radius:7px;background:#fff;font-size:12px;color:var(--ink)}
+.media-bulkbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 12px;background:#f8f9f6;border:1px solid #e7eae2;border-radius:8px;margin-bottom:14px;font-size:11px}.media-bulkbar label{display:flex;align-items:center;gap:6px}.media-bulkbar span{color:var(--muted);margin-right:auto}.media-item{position:relative}.media-item .media-check{position:absolute;z-index:2;left:8px;top:8px;width:20px;height:20px;accent-color:var(--green)}.media-item .media-info{padding:10px}.media-item .media-name{font-size:11px;min-height:30px}.media-item .media-ref-list{font-size:9px;color:var(--muted);line-height:1.45;margin-top:5px;min-height:26px}.media-item .media-actions{grid-template-columns:1fr 1fr}.media-item .media-actions .small-btn:nth-child(3){grid-column:auto}.media-footnote{font-size:10px;color:var(--muted);margin-top:13px;line-height:1.6}.media-item.is-selected{outline:2px solid #6d8b70;outline-offset:1px}.asset-picker-modal{width:min(1000px,100%)}.asset-picker-search{margin-bottom:13px}.asset-picker-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.asset-choice{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:white;text-align:left;padding:0;color:var(--ink)}.asset-choice img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:var(--cream)}.asset-choice span{display:block;padding:7px;font-size:10px;overflow-wrap:anywhere}.asset-choice:hover{border-color:#78927b;box-shadow:0 0 0 2px #78927b22}
+@media(max-width:1050px){.media-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}.asset-picker-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:700px){.media-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.media-toolbar{grid-template-columns:1fr 1fr}.media-toolbar input{grid-column:1/-1}.media-bulkbar{gap:8px}.media-bulkbar span{margin-right:0}.media-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.asset-picker-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
 </style>
 </head>
 <body>
@@ -106,7 +113,7 @@
     <section class="page" id="page-media">
       <div class="page-head"><div><h1>图片素材</h1><p>图片保存在 assets/uploads/，页面引用相对路径，随 Git 一起发布。</p></div><div class="actions"><button class="btn primary" id="upload-media">＋ 上传图片</button><input type="file" id="media-file-input" accept="image/*" multiple class="hidden"></div></div>
       <div class="panel">
-        <div class="panel-head"><div><h2>图片尺寸推荐规则</h2><p>先选择图片用途，后台会按尺寸、比例和文件大小判断是否适合当前版位。</p></div><span class="pill">本地检测</span></div>
+        <div class="panel-head"><div><h2>图片处理规则</h2><p>上传时自动检查规格；不符合时可直接进入裁剪，符合时自动压缩并统一保存。</p></div><span class="pill">本地检测</span></div>
         <div class="form-grid">
           <label class="field">图片用途
             <select id="dimension-use">
@@ -120,12 +127,6 @@
           </label>
           <div class="field"><span>推荐规格</span><div id="dimension-rule" class="dimension-rule"></div></div>
         </div>
-        <div class="dimension-tool">
-          <div><strong>检查待上传图片</strong><p>选择图片后先显示实际尺寸、比例、文件大小和适配建议；不合适时仍可继续上传，但建议先裁切或导出合适尺寸。</p></div>
-          <button class="btn primary" id="inspect-images">选择图片并检查</button>
-          <input type="file" id="inspect-file-input" accept="image/*" multiple class="hidden">
-        </div>
-        <div id="dimension-report" class="dimension-report"><span class="muted">尚未选择图片。此工具只检查，不会自动裁切或修改原图。</span></div>
       </div>
       <div class="panel">
         <div class="panel-head"><div><h2>图片裁剪与压缩</h2><p>上传前可拖拽裁剪、按用途限宽、指定目标体积，自动转成 WebP / JPG / PNG。</p></div><span class="pill" id="pillow-status">检测中…</span></div>
@@ -178,7 +179,7 @@
           如果只是比例不合适，建议用「裁剪」或「填充」，视觉上不会有变形。
         </div>
         <div class="dimension-tool">
-          <div><strong>选择图片并裁剪</strong><p>打开裁剪窗口，拖拽选框调整构图；确认后自动压缩并保存到 assets/uploads/。</p></div>
+          <div><strong>选择图片并裁剪</strong><p>打开裁剪窗口，拖拽选框调整构图；确认后统一转为 WebP 并保存到素材库。</p></div>
           <button class="btn primary" id="open-cropper">选择图片并裁剪</button>
           <input type="file" id="cropper-file-input" accept="image/*" multiple class="hidden">
         </div>
@@ -208,7 +209,19 @@
         </div>
         <div id="batch-report" class="dimension-report"></div>
       </div>
-      <div class="panel"><div class="panel-head"><div><h2>本地素材库</h2><p id="media-count">正在读取图片…</p></div><button class="btn" id="refresh-media">刷新</button></div><div class="media-grid" id="media-grid"></div></div>
+      <div class="panel media-library-panel">
+        <div class="panel-head"><div><h2>媒体资源中心</h2><p id="media-count">正在读取资源…</p></div><div class="actions"><button class="btn" id="restore-media" disabled>撤销最近归档</button><button class="btn" id="refresh-media">刷新资源</button></div></div>
+        <div class="media-stats" id="media-stats"></div>
+        <div class="media-toolbar">
+          <input id="media-search" type="search" placeholder="搜索文件名或路径…">
+          <select id="media-usage-filter"><option value="all">全部资源</option><option value="used">正在使用</option><option value="unused">未使用</option></select>
+          <select id="media-type-filter"><option value="all">全部用途</option><option value="product">商品主图</option><option value="banner">Banner</option><option value="color">颜色卡片</option><option value="area">场景卡片</option><option value="other">其他 / 未识别</option></select>
+          <select id="media-location-filter"><option value="all">全部目录</option><option value="uploads">上传素材</option><option value="site">网站原始资源</option></select>
+        </div>
+        <div class="media-bulkbar"><label><input type="checkbox" id="media-select-visible"> 选择当前筛选结果</label><span id="media-selected-count">已选 0 张</span><button class="btn danger" id="archive-selected" disabled>归档未使用图片</button></div>
+        <div class="media-grid" id="media-grid"></div>
+        <div class="media-footnote">归档只允许处理 assets/uploads/ 中未被任何商品或页面引用的图片。文件会移动到本地备份目录，可撤销恢复；网站原始资源不会被批量归档。</div>
+      </div>
       <div class="notice"><strong>资源建议：</strong>Banner 建议 WebP、约 2400 × 600 px；商品卡片建议 1200 × 1200 px；颜色卡片建议 900 × 1200 px；场景卡片建议 1200 × 900 px；详情主图建议 1600 × 2000 px。一般尽量控制在 300–600 KB，复杂大图可放宽到约 1 MB。尺寸是推荐值，不是强制限制。上传图片会保存到 <code>zhuohui-floral-site/assets/uploads/</code>，替换主图后旧图不会自动删除。</div>
     </section>
     <section class="page" id="page-colors">
@@ -243,6 +256,7 @@
     </section>
   </div>
 </main>
+<div class="modal-backdrop" id="asset-picker-modal"><div class="modal asset-picker-modal"><div class="modal-head"><h2>从素材库选择图片</h2><button class="btn" id="close-asset-picker">关闭</button></div><div class="modal-body"><input id="asset-picker-search" class="asset-picker-search" placeholder="搜索图片文件名…"><div id="asset-picker-grid" class="asset-picker-grid"></div></div></div></div>
 </div>
 <div class="modal-backdrop" id="editor-modal"><div class="modal"><div class="modal-head"><h2 id="editor-title">编辑商品</h2><button class="btn" id="modal-close">关闭 ×</button></div><div class="modal-body" id="editor-body"></div><div class="modal-foot"><button class="btn danger" id="delete-record">删除</button><div class="actions"><button class="btn" id="cancel-edit">取消</button><button class="btn primary" id="save-record">保存</button></div></div></div></div>
 
@@ -310,6 +324,7 @@
   </div>
 </div></div>
 <style>
+
 </style>
 
 <div class="toast" id="toast"></div>

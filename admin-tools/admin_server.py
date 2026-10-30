@@ -17,6 +17,29 @@ ASSETS = SITE / 'assets'
 MAX_UPLOAD = 15 * 1024 * 1024
 ALLOWED_EXT = {'.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif'}
 DATA_FILES = {'products': 'products.json', 'colors': 'colors.json', 'homepage': 'homepage.json'}
+MEDIA_TRASH = TOOLS / 'backups' / 'media-trash'
+MEDIA_TRASH.mkdir(parents=True, exist_ok=True)
+
+
+def media_reference_index():
+    """Map each site-relative asset path to human-readable JSON references."""
+    index = {}
+    def walk(value, label, trail=''):
+        if isinstance(value, dict):
+            for key, child in value.items():
+                walk(child, label, f'{trail}.{key}' if trail else key)
+        elif isinstance(value, list):
+            for i, child in enumerate(value):
+                walk(child, label, f'{trail}[{i}]')
+        elif isinstance(value, str) and value.startswith('assets/'):
+            index.setdefault(value, []).append(f'{label} · {trail}')
+    for key in DATA_FILES:
+        try:
+            walk(read_json(key), {'products':'商品','colors':'颜色主题','homepage':'首页配置'}[key])
+        except Exception:
+            pass
+    return index
+
 
 # ---- Optional Pillow: enables crop / resize / recompress. Falls back gracefully. ----
 try:
@@ -344,18 +367,26 @@ class Handler(SimpleHTTPRequestHandler):
             try:
                 return self.send_json({key: read_json(key) for key in DATA_FILES})
             except Exception as e: return self.send_json({'error': str(e)}, 500)
+        if path == '/api/media/latest-archive':
+            batches = [d for d in MEDIA_TRASH.iterdir() if d.is_dir() and (d / 'manifest.json').is_file()]
+            batches.sort(key=lambda d: d.stat().st_mtime, reverse=True)
+            return self.send_json({'batch': batches[0].name if batches else None})
         if path == '/api/media':
             files = []
+            refs = media_reference_index()
             for p in (SITE / 'assets').rglob('*'):
                 if p.is_file() and p.suffix.lower() in ALLOWED_EXT:
                     rel = p.relative_to(SITE).as_posix()
+                    usages = refs.get(rel, [])
                     entry = {'name': p.name, 'path': rel, 'size': p.stat().st_size,
-                             'sizeLabel': f'{p.stat().st_size/1024:.0f} KB'}
+                             'sizeLabel': f'{p.stat().st_size/1024:.0f} KB',
+                             'references': usages, 'referenceCount': len(usages),
+                             'isUpload': rel.startswith('assets/uploads/')}
                     meta = image_info(p)
                     if meta:
                         entry.update({'width': meta['width'], 'height': meta['height']})
                     files.append(entry)
-            files.sort(key=lambda x: (not x['path'].startswith('assets/uploads/'), x['name'].lower()))
+            files.sort(key=lambda x: (not x['isUpload'], x['name'].lower()))
             return self.send_json(files)
         if path == '/api/image/raw':
             # stream an existing asset back to the browser so it can be re-cropped
@@ -610,6 +641,71 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_POST(self):
         path = urlparse(self.path).path
+
+        if path in ('/api/media/archive', '/api/media/restore'):
+            try:
+                length = int(self.headers.get('Content-Length', '0'))
+                if length <= 0 or length > 1024 * 1024:
+                    return self.send_json({'error': '请求内容无效'}, 400)
+                payload = json.loads(self.rfile.read(length).decode('utf-8'))
+                if path.endswith('/archive'):
+                    requested = payload.get('paths') or []
+                    refs = media_reference_index()
+                    archived, blocked, errors = [], [], []
+                    stamp = datetime.now().strftime('%Y%m%d-%H%M%S-%f')
+                    batch = MEDIA_TRASH / stamp
+                    for rel in requested:
+                        if not isinstance(rel, str) or not rel.startswith('assets/uploads/'):
+                            blocked.append({'path': str(rel), 'reason': '只允许归档 uploads 目录中的图片'})
+                            continue
+                        src = (SITE / rel).resolve()
+                        try: src.relative_to(UPLOADS.resolve())
+                        except ValueError:
+                            blocked.append({'path': rel, 'reason': '非法路径'}); continue
+                        if not src.is_file() or src.suffix.lower() not in ALLOWED_EXT:
+                            errors.append({'path': rel, 'reason': '文件不存在或格式不支持'}); continue
+                        used = refs.get(rel, [])
+                        if used:
+                            blocked.append({'path': rel, 'reason': '仍被引用：' + '；'.join(used[:4])})
+                            continue
+                        batch.mkdir(parents=True, exist_ok=True)
+                        dest = batch / src.name
+                        shutil.move(str(src), str(dest))
+                        archived.append({'path': rel, 'trashName': src.name})
+                    if archived:
+                        (batch / 'manifest.json').write_text(json.dumps(archived, ensure_ascii=False, indent=2), encoding='utf-8')
+                    return self.send_json({'ok': True, 'batch': stamp if archived else None, 'archived': archived, 'blocked': blocked, 'errors': errors})
+                batch_id = str(payload.get('batch') or '')
+                if not re.fullmatch(r'\d{8}-\d{6}-\d{6}', batch_id):
+                    return self.send_json({'error': '归档批次无效'}, 400)
+                batch = (MEDIA_TRASH / batch_id).resolve()
+                try: batch.relative_to(MEDIA_TRASH.resolve())
+                except ValueError: return self.send_json({'error': '非法批次'}, 400)
+                manifest = batch / 'manifest.json'
+                if not manifest.is_file(): return self.send_json({'error': '找不到可恢复的归档记录'}, 404)
+                entries = json.loads(manifest.read_text(encoding='utf-8'))
+                restored, conflicts, remaining = [], [], []
+                for item in entries:
+                    rel = item['path']
+                    target = (SITE / rel).resolve()
+                    try: target.relative_to(UPLOADS.resolve())
+                    except ValueError:
+                        conflicts.append(rel); remaining.append(item); continue
+                    source = batch / item['trashName']
+                    if target.exists() or not source.is_file():
+                        conflicts.append(rel); remaining.append(item); continue
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.move(str(source), str(target)); restored.append(rel)
+                if remaining:
+                    manifest.write_text(json.dumps(remaining, ensure_ascii=False, indent=2), encoding='utf-8')
+                else:
+                    try: manifest.unlink()
+                    except OSError: pass
+                    try: batch.rmdir()
+                    except OSError: pass
+                return self.send_json({'ok': True, 'restored': restored, 'conflicts': conflicts})
+            except Exception as e:
+                return self.send_json({'error': str(e)}, 400)
 
         if path == '/api/image/process':
             return self._handle_image_process()
