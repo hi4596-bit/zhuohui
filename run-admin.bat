@@ -38,6 +38,34 @@ if not exist "admin-tools\admin_server.py" (
 )
 
 echo 使用解释器: %PYEXE%
+
+rem ---- Ensure Pillow is available (needed for crop / compress) ----
+%PYEXE% -c "import PIL" >nul 2>nul
+if not errorlevel 1 (
+  echo 图片裁剪与压缩: Pillow 已安装，功能可用。
+  goto :ready
+)
+
+echo.
+echo [提示] 未检测到 Pillow，图片裁剪与压缩功能不可用。
+echo        后台其余功能可正常使用。
+set "INSTALLPIL="
+set /p "INSTALLPIL=是否现在自动安装 Pillow？(Y/N，直接回车=Y): "
+if /i "%INSTALLPIL%"=="N" goto :ready
+
+echo 正在安装 Pillow，请稍候...
+%PYEXE% -m pip install --upgrade Pillow
+if errorlevel 1 (
+  echo.
+  echo [警告] Pillow 安装失败。可以稍后手动执行：
+  echo        %PYEXE% -m pip install Pillow
+  echo        常见原因：无网络、pip 未安装、或需要代理。
+  echo.
+) else (
+  echo Pillow 安装完成，图片裁剪与压缩功能已启用。
+)
+
+:ready
 echo 正在启动，成功后会打开浏览器 http://127.0.0.1:8765/admin
 echo 停止服务请按 Ctrl+C
 echo.

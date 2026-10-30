@@ -13,9 +13,39 @@ SITE = (BASE / 'zhuohui-floral-site').resolve()
 TOOLS = (BASE / 'admin-tools').resolve()
 DATA = SITE / 'data'
 UPLOADS = SITE / 'assets' / 'uploads'
+ASSETS = SITE / 'assets'
 MAX_UPLOAD = 15 * 1024 * 1024
 ALLOWED_EXT = {'.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif'}
 DATA_FILES = {'products': 'products.json', 'colors': 'colors.json', 'homepage': 'homepage.json'}
+
+# ---- Optional Pillow: enables crop / resize / recompress. Falls back gracefully. ----
+try:
+    from PIL import Image, ImageOps, features as _pil_features
+    PIL_OK = True
+    PILLOW_VERSION = getattr(Image, '__version__', 'unknown')
+    WEBP_OK = _pil_features.check('webp')
+except Exception:  # pragma: no cover - Pillow is optional
+    Image = None
+    PIL_OK = False
+    PILLOW_VERSION = None
+    WEBP_OK = False
+
+# Output format -> (Pillow format, file extension, default quality)
+OUTPUT_FORMATS = {
+    'webp': ('WEBP', '.webp', 82),
+    'jpg':  ('JPEG', '.jpg',  85),
+    'png':  ('PNG',  '.png',  95),
+}
+
+# Per-purpose downscale presets (max width, quality). Mirrors the admin UI rules.
+PURPOSE_PRESETS = {
+    'banner':  {'maxW': 1600, 'quality': 82},
+    'product': {'maxW': 1200, 'quality': 82},
+    'color':   {'maxW': 900,  'quality': 82},
+    'area':    {'maxW': 1200, 'quality': 82},
+    'detail':  {'maxW': 1600, 'quality': 82},
+    'gallery': {'maxW': 1200, 'quality': 82},
+}
 
 for p in (DATA, UPLOADS, TOOLS / 'backups'):
     p.mkdir(parents=True, exist_ok=True)
@@ -25,6 +55,136 @@ def safe_slug(name: str) -> str:
     stem = Path(name).stem.lower()
     stem = re.sub(r'[^a-z0-9]+', '-', stem).strip('-')[:70] or 'image'
     return stem
+
+
+def image_info(path: Path):
+    """Return width/height/format/size for an image file, or None."""
+    if not PIL_OK or not path.exists():
+        return None
+    try:
+        with Image.open(path) as im:
+            return {
+                'width': im.width, 'height': im.height,
+                'format': im.format,
+                'size': path.stat().st_size,
+                'sizeLabel': f'{path.stat().st_size / 1024:.0f} KB',
+            }
+    except Exception:
+        return None
+
+
+def _encode_image(im, fmt: str, quality: int) -> bytes:
+    """Encode a PIL image to bytes for the requested output format."""
+    pil_fmt, _ext, _q = OUTPUT_FORMATS.get(fmt, OUTPUT_FORMATS['webp'])
+    buf = io.BytesIO()
+
+    if pil_fmt == 'PNG':
+        # PNG is lossless; quality param maps to compress_level
+        level = max(0, min(9, int(round((100 - quality) / 100 * 9))))
+        out = im
+        if out.mode not in ('RGB', 'RGBA', 'L', 'LA'):
+            out = out.convert('RGBA')
+        out.save(buf, 'PNG', optimize=True, compress_level=level)
+    elif pil_fmt == 'JPEG':
+        out = im
+        if out.mode in ('RGBA', 'LA', 'P'):
+            # flatten transparency onto white
+            rgba = out.convert('RGBA')
+            bg = Image.new('RGB', rgba.size, (255, 255, 255))
+            bg.paste(rgba, mask=rgba.split()[-1])
+            out = bg
+        elif out.mode != 'RGB':
+            out = out.convert('RGB')
+        out.save(buf, 'JPEG', quality=max(1, min(100, quality)), optimize=True,
+                 progressive=True, subsampling=0 if quality >= 90 else 2)
+    else:  # WEBP
+        out = im
+        if out.mode == 'P':
+            out = out.convert('RGBA')
+        out.save(buf, 'WEBP', quality=max(1, min(100, quality)), method=6)
+    return buf.getvalue()
+
+
+def process_image(payload: bytes, *, crop=None, max_w=None, quality=None,
+                  fmt='webp', target_kb=None, max_kb=None):
+    """Crop, downscale and re-encode an uploaded image.
+
+    crop     : dict with left/top/width/height in *source pixel* coordinates
+    max_w    : max output width in px (aspect preserved, never upscales)
+    quality  : 1-100 encoder quality
+    fmt      : 'webp' | 'jpg' | 'png'
+    target_kb: try progressively lower quality until under this size
+    max_kb   : hard cap, same mechanism
+    Returns (bytes, info-dict).
+    """
+    if not PIL_OK:
+        raise RuntimeError('未安装 Pillow，无法处理图片。请运行 pip install Pillow')
+
+    im = Image.open(io.BytesIO(payload))
+    im = ImageOps.exif_transpose(im)  # respect phone/DSLR orientation
+    src_w, src_h = im.size
+
+    # ---- 1. crop ----
+    if crop:
+        try:
+            l = int(round(float(crop['left'])))
+            t = int(round(float(crop['top'])))
+            w = int(round(float(crop['width'])))
+            h = int(round(float(crop['height'])))
+        except Exception:
+            raise ValueError('裁剪参数格式不正确')
+        if w < 8 or h < 8:
+            raise ValueError('裁剪区域太小（至少 8×8 像素）')
+        # clamp inside the source image
+        l = max(0, min(l, src_w - 1))
+        t = max(0, min(t, src_h - 1))
+        w = max(1, min(w, src_w - l))
+        h = max(1, min(h, src_h - t))
+        im = im.crop((l, t, l + w, t + h))
+
+    # ---- 2. downscale (never upscale) ----
+    if max_w:
+        max_w = int(max_w)
+        if max_w > 0 and im.width > max_w:
+            new_h = max(1, int(round(im.height * max_w / im.width)))
+            im = im.resize((max_w, new_h), Image.LANCZOS)
+
+    # ---- 3. encode, optionally shrinking quality to hit a size cap ----
+    q = int(quality) if quality else OUTPUT_FORMATS.get(fmt, OUTPUT_FORMATS['webp'])[2]
+    q = max(1, min(100, q))
+
+    cap = target_kb or max_kb
+    data = _encode_image(im, fmt, q)
+    if cap and cap > 0:
+        cap_bytes = int(cap) * 1024
+        # first: walk quality down
+        while len(data) > cap_bytes and q > 25:
+            q = max(25, q - 6)
+            data = _encode_image(im, fmt, q)
+        # still too big and PNG (lossless) -> switch to WebP which actually compresses
+        if len(data) > cap_bytes and fmt == 'png':
+            q2 = q
+            while len(data) > cap_bytes and q2 > 30:
+                data = _encode_image(im, 'webp', q2)
+                q2 -= 6
+            fmt = 'webp'
+        # last resort: scale the image down until it fits
+        scale = 1.0
+        while len(data) > cap_bytes and im.width > 240 and scale > 0.3:
+            scale -= 0.12
+            small = im.resize((max(1, int(im.width * scale)), max(1, int(im.height * scale))), Image.LANCZOS)
+            data = _encode_image(small, fmt, q)
+            if len(data) <= cap_bytes:
+                im = small
+
+    return data, {
+        'width': im.width, 'height': im.height,
+        'format': fmt, 'quality': q,
+        'size': len(data), 'sizeLabel': f'{len(data) / 1024:.0f} KB',
+        'sourceWidth': src_w, 'sourceHeight': src_h,
+        'sourceSize': len(payload),
+        'savedPercent': round(100 - (len(data) / max(1, len(payload)) * 100), 1),
+    }
 
 
 def read_json(name):
@@ -89,10 +249,23 @@ class Handler(SimpleHTTPRequestHandler):
             for p in (SITE / 'assets').rglob('*'):
                 if p.is_file() and p.suffix.lower() in ALLOWED_EXT:
                     rel = p.relative_to(SITE).as_posix()
-                    files.append({'name': p.name, 'path': rel, 'size': p.stat().st_size,
-                                  'sizeLabel': f'{p.stat().st_size/1024:.0f} KB'})
+                    entry = {'name': p.name, 'path': rel, 'size': p.stat().st_size,
+                             'sizeLabel': f'{p.stat().st_size/1024:.0f} KB'}
+                    meta = image_info(p)
+                    if meta:
+                        entry.update({'width': meta['width'], 'height': meta['height']})
+                    files.append(entry)
             files.sort(key=lambda x: (not x['path'].startswith('assets/uploads/'), x['name'].lower()))
             return self.send_json(files)
+        if path == '/api/capabilities':
+            # lets the UI know whether server-side crop/compress is available
+            return self.send_json({
+                'pillow': PIL_OK,
+                'pillowVersion': PILLOW_VERSION,
+                'webp': WEBP_OK,
+                'formats': list(OUTPUT_FORMATS.keys()),
+                'purposes': PURPOSE_PRESETS,
+            })
         if path == '/api/backup':
             mem = io.BytesIO()
             with zipfile.ZipFile(mem, 'w', zipfile.ZIP_DEFLATED) as z:
@@ -121,8 +294,206 @@ class Handler(SimpleHTTPRequestHandler):
         except Exception as e:
             return self.send_json({'error': str(e)}, 400)
 
+    def _read_multipart(self, allow_large=False):
+        """Read one multipart upload; returns (filename, payload)."""
+        cap = MAX_UPLOAD + (4 * 1024 * 1024 if allow_large else 1024 * 1024)
+        length = int(self.headers.get('Content-Length', '0'))
+        if length <= 0 or length > cap:
+            raise ValueError('单张图片大小不能超过 15 MB')
+        content_type = self.headers.get('Content-Type', '')
+        body = self.rfile.read(length)
+        message = BytesParser(policy=default).parsebytes(
+            f'Content-Type: {content_type}\r\nMIME-Version: 1.0\r\n\r\n'.encode() + body)
+        part = next((x for x in message.iter_parts() if x.get_filename()), None)
+        if part is None:
+            return None, None
+        return Path(part.get_filename()).name, (part.get_payload(decode=True) or b'')
+
+    def _save_upload(self, filename, payload, fmt_hint=None):
+        """Write bytes into assets/uploads with a timestamped, collision-free name."""
+        ext = Path(filename).suffix.lower()
+        if fmt_hint in OUTPUT_FORMATS:
+            ext = OUTPUT_FORMATS[fmt_hint][1]
+        if ext not in ALLOWED_EXT:
+            ext = '.webp'
+        stamp = datetime.now().strftime('%Y%m%d-%H%M%S')
+        dest = UPLOADS / f'{stamp}-{safe_slug(filename)}{ext}'
+        counter = 2
+        while dest.exists():
+            dest = UPLOADS / f'{stamp}-{safe_slug(filename)}-{counter}{ext}'
+            counter += 1
+        dest.write_bytes(payload)
+        return dest
+
+    def _handle_image_process(self):
+        """POST /api/image/process  (multipart: file + options field)."""
+        if not PIL_OK:
+            return self.send_json({
+                'error': '未安装 Pillow，无法处理图片。请在项目目录运行: pip install Pillow',
+                'pillow': False,
+            }, 503)
+        try:
+            length = int(self.headers.get('Content-Length', '0'))
+            cap = MAX_UPLOAD + 4 * 1024 * 1024
+            if length <= 0 or length > cap:
+                return self.send_json({'error': '单张图片大小不能超过 15 MB'}, 413)
+            content_type = self.headers.get('Content-Type', '')
+            body = self.rfile.read(length)
+            message = BytesParser(policy=default).parsebytes(
+                f'Content-Type: {content_type}\r\nMIME-Version: 1.0\r\n\r\n'.encode() + body)
+
+            def _part_name(part):
+                try:
+                    return part.get_param('name', header='content-disposition')
+                except Exception:
+                    return None
+
+            parts = list(message.iter_parts())
+            file_part = next((x for x in parts
+                              if x.get_filename() and _part_name(x) in ('file', None)), None)
+            if file_part is None:
+                file_part = next((x for x in parts if x.get_filename()), None)
+            if file_part is None:
+                return self.send_json({'error': '没有接收到图片文件'}, 400)
+
+            filename = Path(file_part.get_filename()).name
+            ext = Path(filename).suffix.lower()
+            if ext not in ALLOWED_EXT:
+                return self.send_json({'error': '仅支持 JPG、PNG、WebP、GIF、AVIF 图片'}, 415)
+            payload = file_part.get_payload(decode=True) or b''
+            if not payload:
+                return self.send_json({'error': '图片文件为空'}, 400)
+
+            opts = {}
+            opts_part = next((x for x in parts if _part_name(x) == 'options'), None)
+            if opts_part is not None:
+                raw = opts_part.get_payload(decode=True) or b'{}'
+                try:
+                    opts = json.loads(raw.decode('utf-8') or '{}')
+                except Exception:
+                    opts = {}
+
+            fmt = str(opts.get('format') or 'webp').lower()
+            if fmt not in OUTPUT_FORMATS:
+                fmt = 'webp'
+
+            purpose = opts.get('purpose')
+            max_w = opts.get('maxWidth')
+            quality = opts.get('quality')
+            if purpose in PURPOSE_PRESETS:
+                preset = PURPOSE_PRESETS[purpose]
+                if max_w in (None, '', 0):
+                    max_w = preset['maxW']
+                if quality in (None, '', 0):
+                    quality = preset['quality']
+
+            target_kb = opts.get('targetKb') or opts.get('maxKb')
+
+            data, info = process_image(
+                payload,
+                crop=opts.get('crop') or None,
+                max_w=max_w or None,
+                quality=quality or None,
+                fmt=fmt,
+                target_kb=target_kb or None,
+            )
+
+            if opts.get('save', True):
+                dest = self._save_upload(filename, data, fmt_hint=fmt)
+                rel = dest.relative_to(SITE).as_posix()
+                info.update({'ok': True, 'path': rel, 'name': dest.name})
+                return self.send_json(info)
+
+            # preview mode: return bytes inline as data URL, do not write to disk
+            import base64 as _b64
+            mime = {'webp': 'image/webp', 'jpg': 'image/jpeg', 'png': 'image/png'}[fmt]
+            info.update({'ok': True, 'dataUrl': f'data:{mime};base64,' + _b64.b64encode(data).decode('ascii')})
+            return self.send_json(info)
+        except Exception as e:
+            return self.send_json({'error': str(e)}, 400)
+
+    def _handle_batch_optimize(self):
+        """POST /api/images/optimize-batch  (JSON body) - recompress existing assets in place."""
+        if not PIL_OK:
+            return self.send_json({'error': '未安装 Pillow，无法优化图片'}, 503)
+        try:
+            length = int(self.headers.get('Content-Length', '0'))
+            body = json.loads(self.rfile.read(length).decode('utf-8') or '{}') if length else {}
+        except Exception:
+            body = {}
+
+        dry_run = bool(body.get('dryRun'))
+        max_w = int(body.get('maxWidth') or 1600)
+        quality = int(body.get('quality') or 80)
+        min_kb = float(body.get('minKb') or 0)      # skip files already smaller than this
+        backup = body.get('backup', True)
+
+        results, total_before, total_after = [], 0, 0
+        backup_dir = TOOLS / 'backups' / 'images'
+        if backup and not dry_run:
+            backup_dir.mkdir(parents=True, exist_ok=True)
+        stamp = datetime.now().strftime('%Y%m%d-%H%M%S')
+
+        targets = [p for p in ASSETS.rglob('*')
+                   if p.is_file() and p.suffix.lower() in ALLOWED_EXT]
+
+        for p in targets:
+            try:
+                before = p.stat().st_size
+                total_before += before
+                if before / 1024 < min_kb:
+                    total_after += before
+                    results.append({'path': p.relative_to(SITE).as_posix(), 'action': 'skipped-small',
+                                    'before': before, 'after': before})
+                    continue
+
+                raw = p.read_bytes()
+                fmt = 'webp' if p.suffix.lower() == '.webp' else ('jpg' if p.suffix.lower() in ('.jpg', '.jpeg') else 'png')
+                data, info = process_image(raw, max_w=max_w, quality=quality, fmt=fmt)
+
+                if len(data) >= before:
+                    total_after += before
+                    results.append({'path': p.relative_to(SITE).as_posix(), 'action': 'kept-original',
+                                    'before': before, 'after': before})
+                    continue
+
+                total_after += len(data)
+                if not dry_run:
+                    if backup:
+                        bak = backup_dir / f'{p.stem}.{stamp}{p.suffix}.bak'
+                        shutil.copy2(p, bak)
+                    p.write_bytes(data)
+                results.append({
+                    'path': p.relative_to(SITE).as_posix(),
+                    'action': 'optimized',
+                    'before': before, 'after': len(data),
+                    'beforeLabel': f'{before/1024:.0f} KB',
+                    'afterLabel': f'{len(data)/1024:.0f} KB',
+                    'savedPercent': info['savedPercent'],
+                })
+            except Exception as e:
+                results.append({'path': p.name, 'action': 'error', 'error': str(e)})
+
+        return self.send_json({
+            'ok': True, 'dryRun': dry_run,
+            'count': len(results),
+            'optimized': sum(1 for r in results if r['action'] == 'optimized'),
+            'totalBefore': total_before, 'totalAfter': total_after,
+            'totalBeforeLabel': f'{total_before/1024/1024:.2f} MB',
+            'totalAfterLabel': f'{total_after/1024/1024:.2f} MB',
+            'savedPercent': round(100 - total_after / max(1, total_before) * 100, 1),
+            'results': results,
+        })
+
     def do_POST(self):
         path = urlparse(self.path).path
+
+        if path == '/api/image/process':
+            return self._handle_image_process()
+
+        if path == '/api/images/optimize-batch':
+            return self._handle_batch_optimize()
+
         if path != '/api/upload': return self.send_json({'error':'API endpoint not found'}, 404)
         try:
             length = int(self.headers.get('Content-Length', '0'))

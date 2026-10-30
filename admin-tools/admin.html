@@ -76,6 +76,64 @@
         </div>
         <div id="dimension-report" class="dimension-report"><span class="muted">尚未选择图片。此工具只检查，不会自动裁切或修改原图。</span></div>
       </div>
+      <div class="panel">
+        <div class="panel-head"><div><h2>图片裁剪与压缩</h2><p>上传前可拖拽裁剪、按用途限宽、指定目标体积，自动转成 WebP / JPG / PNG。</p></div><span class="pill" id="pillow-status">检测中…</span></div>
+        <div class="form-grid">
+          <label class="field">裁剪比例
+            <select id="crop-ratio">
+              <option value="free">自由裁剪</option>
+              <option value="1">1 : 1（商品卡片）</option>
+              <option value="1.3333">4 : 3（场景卡片）</option>
+              <option value="1.7778">16 : 9（Banner）</option>
+              <option value="0.75">3 : 4（颜色卡片）</option>
+              <option value="0.8">4 : 5（详情主图）</option>
+            </select>
+          </label>
+          <label class="field">输出格式
+            <select id="crop-format">
+              <option value="webp">WebP（推荐，体积最小）</option>
+              <option value="jpg">JPG（兼容性最好）</option>
+              <option value="png">PNG（无损，体积较大）</option>
+            </select>
+          </label>
+          <label class="field">最大宽度（px）
+            <input id="crop-maxwidth" type="number" min="200" max="4000" step="50" placeholder="留空则按用途自动">
+          </label>
+          <label class="field">目标体积上限（KB）
+            <input id="crop-targetkb" type="number" min="0" max="5000" step="10" placeholder="留空则不限制，如 300">
+          </label>
+        </div>
+        <div class="dimension-tool">
+          <div><strong>选择图片并裁剪</strong><p>打开裁剪窗口，拖拽选框调整构图；确认后自动压缩并保存到 assets/uploads/。</p></div>
+          <button class="btn primary" id="open-cropper">选择图片并裁剪</button>
+          <input type="file" id="cropper-file-input" accept="image/*" multiple class="hidden">
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div><h2>批量优化现有图片</h2><p>把 assets/ 下所有图片按限宽重压一遍，减小页面加载体积。会自动备份原图。</p></div><span class="pill" id="batch-hint">尚未运行</span></div>
+        <div class="form-grid">
+          <label class="field">最大宽度（px）
+            <input id="batch-maxwidth" type="number" min="400" max="4000" step="100" value="1600">
+          </label>
+          <label class="field">压缩质量（1-100）
+            <input id="batch-quality" type="number" min="30" max="100" step="1" value="80">
+          </label>
+          <label class="field">跳过小于（KB）
+            <input id="batch-minkb" type="number" min="0" step="10" value="0" placeholder="0 = 全部处理">
+          </label>
+          <label class="field">模式
+            <select id="batch-mode">
+              <option value="dry">仅预览，不修改文件（安全）</option>
+              <option value="run">实际执行并备份原图</option>
+            </select>
+          </label>
+        </div>
+        <div class="dimension-tool">
+          <div><strong>建议先预览</strong><p>预览会列出每张图压缩前后的体积，确认满意后再执行实际优化。</p></div>
+          <button class="btn" id="run-batch">开始批量优化</button>
+        </div>
+        <div id="batch-report" class="dimension-report"></div>
+      </div>
       <div class="panel"><div class="panel-head"><div><h2>本地素材库</h2><p id="media-count">正在读取图片…</p></div><button class="btn" id="refresh-media">刷新</button></div><div class="media-grid" id="media-grid"></div></div>
       <div class="notice"><strong>资源建议：</strong>Banner 建议 WebP、约 2400 × 600 px；商品卡片建议 1200 × 1200 px；颜色卡片建议 900 × 1200 px；场景卡片建议 1200 × 900 px；详情主图建议 1600 × 2000 px。一般尽量控制在 300–600 KB，复杂大图可放宽到约 1 MB。尺寸是推荐值，不是强制限制。上传图片会保存到 <code>zhuohui-floral-site/assets/uploads/</code>，替换主图后旧图不会自动删除。</div>
     </section>
@@ -113,6 +171,41 @@
 </main>
 </div>
 <div class="modal-backdrop" id="editor-modal"><div class="modal"><div class="modal-head"><h2 id="editor-title">编辑商品</h2><button class="btn" id="modal-close">关闭 ×</button></div><div class="modal-body" id="editor-body"></div><div class="modal-foot"><button class="btn danger" id="delete-record">删除</button><div class="actions"><button class="btn" id="cancel-edit">取消</button><button class="btn primary" id="save-record">保存</button></div></div></div></div>
+
+<div class="modal-backdrop" id="cropper-modal"><div class="modal" style="width:min(980px,100%)">
+  <div class="modal-head"><h2>裁剪 <span id="cropper-filename" class="muted" style="font-size:12px"></span></h2><button class="btn" id="cropper-close">关闭 ×</button></div>
+  <div class="modal-body">
+    <div class="crop-stage" id="crop-stage">
+      <canvas id="crop-canvas"></canvas>
+      <div class="crop-box" id="crop-box">
+        <span class="crop-handle nw" data-h="nw"></span><span class="crop-handle ne" data-h="ne"></span>
+        <span class="crop-handle sw" data-h="sw"></span><span class="crop-handle se" data-h="se"></span>
+        <span class="crop-grid"></span>
+      </div>
+    </div>
+    <div class="crop-info" id="crop-info">拖拽选框调整构图</div>
+    <div class="form-grid">
+      <label class="field">输出预览尺寸<input id="crop-outsize" readonly></label>
+      <label class="field">操作<input id="crop-hint" readonly value="拖拽中间移动，拖拽四角缩放"></label>
+    </div>
+  </div>
+  <div class="modal-foot">
+    <div class="actions"><button class="btn" id="cropper-reset">重置选框</button><button class="btn" id="cropper-skip">不裁剪直接压缩</button></div>
+    <div class="actions"><button class="btn" id="cropper-cancel">取消</button><button class="btn primary" id="cropper-apply">保存到素材库</button></div>
+  </div>
+</div></div>
+<style>
+.crop-stage{position:relative;background:#1b231d;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;min-height:240px;max-height:62vh}
+.crop-stage canvas{display:block;max-width:100%;max-height:62vh}
+.crop-box{position:absolute;border:2px solid #fff;box-shadow:0 0 0 9999px rgba(10,16,12,.62);cursor:move;touch-action:none}
+.crop-box .crop-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(to right,#fff3 1px,transparent 1px),linear-gradient(to bottom,#fff3 1px,transparent 1px);background-size:33.33% 33.33%}
+.crop-handle{position:absolute;width:16px;height:16px;background:#fff;border:1px solid #4a5a4d;border-radius:3px}
+.crop-handle.nw{left:-9px;top:-9px;cursor:nwse-resize}.crop-handle.ne{right:-9px;top:-9px;cursor:nesw-resize}
+.crop-handle.sw{left:-9px;bottom:-9px;cursor:nesw-resize}.crop-handle.se{right:-9px;bottom:-9px;cursor:nwse-resize}
+.crop-info{font-size:11px;color:#596255;padding:9px 0 3px}
+.crop-ok{color:#3f7a4c;font-weight:600}.crop-warn{color:#a0642c;font-weight:600}
+</style>
+
 <div class="toast" id="toast"></div>
 <script src="/admin.js"></script>
 </body></html>

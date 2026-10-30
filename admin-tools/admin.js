@@ -41,8 +41,7 @@ function maybeWarnForUpload(files){const r=currentDimensionRule();return inspect
 async function inspectFilesRaw(files,r){const out=[];for(const file of files){const d=await readImageSize(file);const issues=[];if(!d.width||!d.height)issues.push('无法读取图片尺寸');else{const ratio=d.width/d.height;if(d.width<r.minW||d.height<r.minH)issues.push(`分辨率偏低（建议至少 ${r.minW} × ${r.minH}px）`);if(ratio<r.range[0]||ratio>r.range[1])issues.push(`比例 ${ratioLabel(d.width,d.height)} 与推荐不符`);if(file.size/1024>r.maxKB)issues.push(`文件较大：${(file.size/1024).toFixed(0)} KB`)}URL.revokeObjectURL(d.url);out.push({file,issues})}return out}
 
 async function loadMedia(){try{state.media=await api('/api/media');$('#media-count').textContent=`${state.media.length} 张图片`;$('#media-grid').innerHTML=state.media.map((m,i)=>`<article class="media-item"><img data-media-image="${i}" src="/${esc(m.path)}" alt="" loading="lazy"><div class="media-info"><div class="media-name">${esc(m.name)}</div><div class="muted">${esc(m.sizeLabel)}</div><div class="media-dimensions" data-media-dimensions="${i}">正在读取尺寸…</div><button class="small-btn" data-copy-path="${esc(m.path)}">复制相对路径</button></div></article>`).join('')||'<div class="empty">素材目录暂无图片。点击上传图片开始使用。</div>';state.media.forEach((m,i)=>{const im=$(`[data-media-image="${i}"]`);const show=()=>{const el=$(`[data-media-dimensions="${i}"]`);if(el&&im.naturalWidth)el.innerHTML=`<span class="dim-badge">${im.naturalWidth} × ${im.naturalHeight}px</span> · ${ratioLabel(im.naturalWidth,im.naturalHeight)}`};if(im?.complete)show();else im?.addEventListener('load',show,{once:true});});}catch(e){toast('读取素材失败：'+e.message)}}
-async function uploadFiles(files){const allowed=await maybeWarnForUpload(files);if(!allowed)return;for(const file of files){const fd=new FormData();fd.append('file',file);await api('/api/upload',{method:'POST',body:fd});}await loadMedia();toast(`已上传 ${files.length} 张图片`);}
-async function uploadSingle(useOverride=null){return new Promise(resolve=>{const input=document.createElement('input');input.type='file';input.accept='image/*';input.onchange=async()=>{if(!input.files?.length)return resolve(null);try{const previousUse=$('#dimension-use')?.value; if(useOverride&&$('#dimension-use'))$('#dimension-use').value=useOverride;renderDimensionRule();const allowed=await maybeWarnForUpload([input.files[0]]);if(useOverride&&$('#dimension-use'))$('#dimension-use').value=previousUse;renderDimensionRule();if(!allowed)return resolve(null);const fd=new FormData();fd.append('file',input.files[0]);const r=await api('/api/upload',{method:'POST',body:fd});await loadMedia();toast('图片上传成功');resolve(r.path)}catch(e){toast('上传失败：'+e.message,4000);resolve(null)}};input.click()})}
+
 function download(name,data,type='application/json'){const blob=new Blob([type==='text/csv'?data:JSON.stringify(data,null,2)],{type:type==='text/csv'?'text/csv;charset=utf-8':'application/json;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)}
 function exportCSV(){const cols=['id','name','category','description','image','colors','price','compareAt','status','featured','sortOrder'];const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[cols.join(','),...state.products.map(p=>cols.map(k=>q(Array.isArray(p[k])?p[k].join('|'):p[k])).join(','))];download('zhuohui-products.csv','\ufeff'+rows.join('\r\n'),'text/csv')}
 function exportAll(){download('zhuohui-content-data.json',{products:state.products,colors:state.colors,homepage:state.homepage})}
@@ -56,3 +55,596 @@ $('#dimension-use').addEventListener('change',()=>{renderDimensionRule();const f
 $('#upload-media').addEventListener('click',()=>$('#media-file-input').click());$('#media-file-input').addEventListener('change',async e=>{if(e.target.files.length){try{await uploadFiles([...e.target.files])}catch(err){toast('上传失败：'+err.message,4000)}e.target.value=''}});$('#refresh-media').addEventListener('click',loadMedia);
 $('#home-site-name').addEventListener('input',()=>{state.homepage.siteName=$('#home-site-name').value;markDirty()});$('#home-announcement').addEventListener('input',()=>{state.homepage.announcement=$('#home-announcement').value;markDirty()});$('#save-home').addEventListener('click',async()=>{state.homepage.siteName=$('#home-site-name').value.trim();state.homepage.announcement=$('#home-announcement').value.trim();$$('[data-area-field]').forEach(input=>{const a=state.homepage.areas?.[Number(input.dataset.areaIndex)];if(a)a[input.dataset.areaField]=input.value.trim()});try{await saveData('homepage')}catch(e){toast(e.message,4000)}});$('#reset-home-order').addEventListener('click',()=>{state.homepage.modules.sort((a,b)=>a.sortOrder-b.sortOrder).forEach((m,i)=>m.sortOrder=i+1);renderHomepage();markDirty()});$('#save-all').addEventListener('click',async()=>{state.homepage.siteName=$('#home-site-name').value.trim()||state.homepage.siteName;state.homepage.announcement=$('#home-announcement').value.trim();$$('[data-area-field]').forEach(input=>{const a=state.homepage.areas?.[Number(input.dataset.areaIndex)];if(a)a[input.dataset.areaField]=input.value.trim()});try{await api('/api/data/products',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(state.products,null,2)});await api('/api/data/colors',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(state.colors,null,2)});await api('/api/data/homepage',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(state.homepage,null,2)});state.dirty=false;$('#connection-status').textContent='已保存到本地';toast('所有数据已保存')}catch(e){toast('保存失败：'+e.message,4000)}});$('#export-products').addEventListener('click',exportCSV);$('#download-data').addEventListener('click',exportAll);$('#download-backup').addEventListener('click',()=>{location.href='/api/backup'});$('#open-site').addEventListener('click',()=>window.open('/','_blank'));
 loadAll().catch(e=>{console.error(e);$('#connection-status').textContent='服务连接失败';toast('无法读取本地数据，请确认通过 run-admin.bat 启动后台。'+e.message,6000)});
+
+/* ===== Image cropper & compressor ===== */
+const cropper = {
+  img: null, file: null, scale: 1, box: { x: 0, y: 0, w: 0, h: 0 },
+  drag: null, ratio: 'free', caps: null
+};
+
+async function loadCapabilities() {
+  try {
+    cropper.caps = await api('/api/capabilities');
+    const el = $('#pillow-status');
+    if (!el) return;
+    if (cropper.caps.pillow) {
+      el.textContent = 'Pillow ' + (cropper.caps.pillowVersion || '') + ' 可用';
+      el.style.background = '#e9f2e7';
+      el.style.color = '#426c48';
+    } else {
+      el.textContent = '未安装 Pillow';
+      el.style.background = '#f7e7e4';
+      el.style.color = '#a3453c';
+    }
+  } catch (e) {
+    const el = $('#pillow-status');
+    if (el) el.textContent = '服务未响应';
+  }
+}
+
+function currentPurpose() {
+  const sel = $('#dimension-use');
+  return sel ? sel.value : 'product';
+}
+
+function openCropper(file, options) {
+  if (!file) return;
+  const opts = options || {};
+  if (cropper.caps && cropper.caps.pillow === false) {
+    toast('未安装 Pillow，无法裁剪压缩。请运行 pip install Pillow', 6000);
+    if (opts.onCancel) opts.onCancel();
+    return;
+  }
+  cropper.file = file;
+  cropper.callbacks = { onSaved: opts.onSaved || null, onCancel: opts.onCancel || null };
+  cropper.forced = !!opts.reason;
+
+  // auto-pick the ratio that matches the purpose so the first crop is sensible
+  const ratioSel = $('#crop-ratio');
+  if (opts.purpose && ratioSel) {
+    const preset = dimensionRules[opts.purpose];
+    if (preset && preset.ratio) {
+      const want = String(preset.ratio);
+      const found = Array.prototype.find.call(ratioSel.options, function (o) { return o.value === want; });
+      if (found) ratioSel.value = want;
+    }
+  }
+  cropper.ratio = ratioSel ? ratioSel.value : 'free';
+
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  img.onload = function () {
+    cropper.img = img;
+    const nameEl = $('#cropper-filename');
+    if (nameEl) {
+      nameEl.textContent = file.name + ' · ' + img.naturalWidth + '×' + img.naturalHeight + 'px · ' + Math.round(file.size / 1024) + ' KB';
+    }
+
+    // show WHY the editor opened
+    const info = $('#crop-info');
+    if (info && opts.reason && opts.reason.length) {
+      info.innerHTML = '<span class="crop-warn">不符合规格：</span>' + opts.reason.join('；') +
+        '<br><span class="muted">请调整裁剪框或设置压缩参数后再保存。</span>';
+    }
+
+    // pre-fill the target size from the purpose preset
+    const tk = $('#crop-targetkb');
+    if (tk && opts.purpose) {
+      const preset = dimensionRules[opts.purpose];
+      if (preset && preset.maxKB && !tk.value) tk.value = preset.maxKB;
+    }
+
+    $('#cropper-modal').classList.add('open');
+    drawCropper();
+    resetCropBox();
+    updateCropInfo();
+  };
+  img.onerror = function () {
+    toast('图片读取失败', 4000);
+    URL.revokeObjectURL(url);
+    if (opts.onCancel) opts.onCancel();
+  };
+  img.src = url;
+}
+
+function closeCropper(cancelled) {
+  $('#cropper-modal').classList.remove('open');
+  const cb = cropper.callbacks || null;
+  cropper.callbacks = null;
+  if (cancelled && cb && cb.onCancel) cb.onCancel();
+}
+
+function drawCropper() {
+  const img = cropper.img;
+  const canvas = $('#crop-canvas');
+  if (!img || !canvas) return;
+  const stage = $('#crop-stage');
+  const availW = Math.max(240, stage.clientWidth - 4);
+  const availH = Math.max(200, Math.min(window.innerHeight * 0.62, 620));
+  const s = Math.min(availW / img.naturalWidth, availH / img.naturalHeight, 1);
+  cropper.scale = s;
+  canvas.width = Math.round(img.naturalWidth * s);
+  canvas.height = Math.round(img.naturalHeight * s);
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+}
+
+function resetCropBox() {
+  const canvas = $('#crop-canvas');
+  if (!canvas || !canvas.width) return;
+  const cw = canvas.width;
+  const ch = canvas.height;
+  const r = cropper.ratio === 'free' ? null : parseFloat(cropper.ratio);
+  let w, h;
+  if (r) {
+    if (cw / ch > r) { h = ch * 0.9; w = h * r; }
+    else { w = cw * 0.9; h = w / r; }
+  } else {
+    w = cw * 0.86;
+    h = ch * 0.86;
+  }
+  cropper.box = { x: (cw - w) / 2, y: (ch - h) / 2, w: w, h: h };
+  paintBox();
+}
+
+function paintBox() {
+  const canvas = $('#crop-canvas');
+  const box = $('#crop-box');
+  if (!canvas || !box) return;
+  const rect = canvas.getBoundingClientRect();
+  const stageRect = $('#crop-stage').getBoundingClientRect();
+  const offsetX = rect.left - stageRect.left;
+  const offsetY = rect.top - stageRect.top;
+  const k = rect.width / canvas.width;
+  const b = cropper.box;
+  box.style.left = (offsetX + b.x * k) + 'px';
+  box.style.top = (offsetY + b.y * k) + 'px';
+  box.style.width = (b.w * k) + 'px';
+  box.style.height = (b.h * k) + 'px';
+}
+
+function updateCropInfo() {
+  const b = cropper.box;
+  const s = cropper.scale || 1;
+  const sw = Math.round(b.w / s);
+  const sh = Math.round(b.h / s);
+  const maxWEl = $('#crop-maxwidth');
+  const maxW = parseInt(maxWEl ? maxWEl.value : '0', 10) || 0;
+  let outW = sw;
+  let outH = sh;
+  if (maxW > 0 && sw > maxW) {
+    outH = Math.round(sh * maxW / sw);
+    outW = maxW;
+  }
+  const el = $('#crop-outsize');
+  if (el) el.value = outW + ' × ' + outH + ' px（原图裁切 ' + sw + '×' + sh + '）';
+  const info = $('#crop-info');
+  if (info) {
+    const r = (sw / Math.max(1, sh)).toFixed(2);
+    info.innerHTML = '裁剪区域 <span class="crop-ok">' + sw + ' × ' + sh + '</span> px · 比例 ' + r + ':1 · '
+      + (cropper.ratio === 'free' ? '自由裁剪' : '已锁定比例');
+  }
+}
+
+function bindCropDrag() {
+  const box = $('#crop-box');
+  const canvas = $('#crop-canvas');
+  if (!box || !canvas) return;
+
+  function pos(ev) {
+    const rect = canvas.getBoundingClientRect();
+    const k = canvas.width / rect.width;
+    const pt = ev.touches ? ev.touches[0] : ev;
+    return { x: (pt.clientX - rect.left) * k, y: (pt.clientY - rect.top) * k };
+  }
+
+  function start(ev, mode, handle) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    cropper.drag = { mode: mode, handle: handle, start: pos(ev), box: Object.assign({}, cropper.box) };
+  }
+
+  function endDrag() {
+    cropper.drag = null;
+  }
+
+  function move(ev) {
+    const d = cropper.drag;
+    if (!d) return;
+    ev.preventDefault();
+    const p = pos(ev);
+    const dx = p.x - d.start.x;
+    const dy = p.y - d.start.y;
+    const cw = canvas.width;
+    const ch = canvas.height;
+    const b = Object.assign({}, d.box);
+
+    if (d.mode === 'move') {
+      b.x = Math.max(0, Math.min(d.box.x + dx, cw - b.w));
+      b.y = Math.max(0, Math.min(d.box.y + dy, ch - b.h));
+      cropper.box = b;
+      paintBox();
+      updateCropInfo();
+      return;
+    }
+
+    const r = cropper.ratio === 'free' ? null : parseFloat(cropper.ratio);
+    let x = d.box.x, y = d.box.y, w = d.box.w, h = d.box.h;
+    const hd = d.handle || '';
+
+    if (hd.indexOf('e') >= 0) w = d.box.w + dx;
+    if (hd.indexOf('s') >= 0) h = d.box.h + dy;
+    if (hd.indexOf('w') >= 0) { w = d.box.w - dx; x = d.box.x + dx; }
+    if (hd.indexOf('n') >= 0) { h = d.box.h - dy; y = d.box.y + dy; }
+
+    w = Math.max(24, w);
+    h = Math.max(24, h);
+
+    if (r) {
+      if (hd === 'nw' || hd === 'se') { h = w / r; }
+      else { w = h * r; }
+      if (hd.indexOf('w') >= 0) x = d.box.x + d.box.w - w;
+      if (hd.indexOf('n') >= 0) y = d.box.y + d.box.h - h;
+    }
+
+    if (x < 0) { w += x; x = 0; }
+    if (y < 0) { h += y; y = 0; }
+    if (x + w > cw) w = cw - x;
+    if (y + h > ch) h = ch - y;
+
+    if (r) {
+      h = w / r;
+      if (y + h > ch) { h = ch - y; w = h * r; }
+    }
+
+    cropper.box = { x: x, y: y, w: Math.max(24, w), h: Math.max(24, h) };
+    paintBox();
+    updateCropInfo();
+  }
+
+  box.addEventListener('mousedown', function (e) {
+    if (e.target.classList.contains('crop-handle')) start(e, 'resize', e.target.dataset.h);
+    else start(e, 'move');
+  });
+  box.addEventListener('touchstart', function (e) {
+    if (e.target.classList.contains('crop-handle')) start(e, 'resize', e.target.dataset.h);
+    else start(e, 'move');
+  }, { passive: false });
+
+  document.addEventListener('mousemove', move);
+  document.addEventListener('touchmove', move, { passive: false });
+  document.addEventListener('mouseup', endDrag);
+  document.addEventListener('touchend', endDrag);
+}
+
+async function applyCrop(save) {
+  if (!cropper.img || !cropper.file) return;
+  const s = cropper.scale || 1;
+  const b = cropper.box;
+  const crop = {
+    left: Math.round(b.x / s),
+    top: Math.round(b.y / s),
+    width: Math.round(b.w / s),
+    height: Math.round(b.h / s)
+  };
+
+  const fd = new FormData();
+  fd.append('file', cropper.file);
+
+  const fmtEl = $('#crop-format');
+  const mwEl = $('#crop-maxwidth');
+  const tkEl = $('#crop-targetkb');
+  const opts = {
+    crop: crop,
+    format: fmtEl ? fmtEl.value : 'webp',
+    purpose: currentPurpose(),
+    maxWidth: parseInt(mwEl ? mwEl.value : '0', 10) || null,
+    targetKb: parseInt(tkEl ? tkEl.value : '0', 10) || null,
+    save: save
+  };
+  fd.append('options', new Blob([JSON.stringify(opts)], { type: 'application/json' }), 'options.json');
+
+  const btn = save ? $('#cropper-apply') : $('#cropper-skip');
+  if (!btn) return;
+  const oldText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '处理中…';
+  try {
+    const res = await api('/api/image/process', { method: 'POST', body: fd });
+    if (save) {
+      const cb = cropper.callbacks || null;
+      cropper.callbacks = null;
+      $('#cropper-modal').classList.remove('open');
+      if (cb && cb.onSaved) cb.onSaved(res.path);
+      if (!cb) await loadMedia();
+      toast('已保存 ' + res.name + ' · ' + res.width + '×' + res.height + ' · ' + res.sizeLabel + '（省 ' + res.savedPercent + '%）', 5000);
+    } else {
+      toast('预览：' + res.width + '×' + res.height + ' · ' + res.sizeLabel, 4000);
+    }
+  } catch (e) {
+    toast('处理失败：' + e.message, 5000);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = oldText;
+  }
+}
+
+async function runBatchOptimize() {
+  const maxwEl = $('#batch-maxwidth');
+  const qEl = $('#batch-quality');
+  const mkEl = $('#batch-minkb');
+  const modeEl = $('#batch-mode');
+  const body = {
+    dryRun: (modeEl ? modeEl.value : 'dry') === 'dry',
+    maxWidth: parseInt(maxwEl ? maxwEl.value : '1600', 10) || 1600,
+    quality: parseInt(qEl ? qEl.value : '80', 10) || 80,
+    minKb: parseFloat(mkEl ? mkEl.value : '0') || 0,
+    backup: true
+  };
+
+  const btn = $('#run-batch');
+  const oldText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '处理中，请稍候…';
+  const report = $('#batch-report');
+  if (report) report.innerHTML = '<span class="muted">正在处理，图片较多时需要一会儿…</span>';
+
+  try {
+    const res = await api('/api/images/optimize-batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    const hint = $('#batch-hint');
+    if (hint) hint.textContent = (body.dryRun ? '预览' : '已执行') + ' · 省 ' + res.savedPercent + '%';
+
+    if (report) {
+      const rows = (res.results || []).map(function (r) {
+        if (r.action === 'optimized') {
+          return '<div class="dimension-result"><div></div><div>'
+            + '<div class="dim-name">' + esc(r.path) + '</div>'
+            + '<div class="dim-meta">' + r.beforeLabel + ' → <span class="crop-ok">' + r.afterLabel + '</span>（省 ' + r.savedPercent + '%）</div>'
+            + '</div><span class="dimension-status">已优化</span></div>';
+        }
+        const labels = { 'skipped-small': '太小，跳过', 'kept-original': '已是最优', 'error': '出错' };
+        const label = labels[r.action] || r.action;
+        return '<div class="dimension-result"><div></div><div>'
+          + '<div class="dim-name">' + esc(r.path) + '</div>'
+          + '<div class="dim-meta">' + (r.beforeLabel || '') + '</div>'
+          + '</div><span class="dimension-status warn">' + label + '</span></div>';
+      }).join('');
+
+      report.innerHTML = '<div class="notice" style="margin-bottom:10px"><strong>'
+        + (body.dryRun ? '预览结果' : '优化完成') + '：</strong>共 ' + res.count + ' 张，优化 ' + res.optimized
+        + ' 张，' + res.totalBeforeLabel + ' → ' + res.totalAfterLabel
+        + '，共省 <strong>' + res.savedPercent + '%</strong>'
+        + (body.dryRun ? '。这只是预览，未修改任何文件。' : '。原图已备份到 admin-tools/backups/images/')
+        + '</div>' + rows;
+    }
+
+    if (!body.dryRun) await loadMedia();
+    toast('批量优化完成：省 ' + res.savedPercent + '%', 5000);
+  } catch (e) {
+    if (report) report.innerHTML = '<span class="muted">失败：' + esc(e.message) + '</span>';
+    toast('批量优化失败：' + e.message, 5000);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = oldText;
+  }
+}
+
+function initCropper() {
+  loadCapabilities();
+
+  const openBtn = $('#open-cropper');
+  if (openBtn) openBtn.addEventListener('click', function () { $('#cropper-file-input').click(); });
+
+  const fileInput = $('#cropper-file-input');
+  if (fileInput) {
+    fileInput.addEventListener('change', function (e) {
+      const files = Array.prototype.slice.call(e.target.files || []);
+      e.target.value = '';
+      if (files.length) openCropper(files[0]);
+    });
+  }
+
+  const ratioSel = $('#crop-ratio');
+  if (ratioSel) {
+    ratioSel.addEventListener('change', function () {
+      cropper.ratio = ratioSel.value;
+      resetCropBox();
+      updateCropInfo();
+    });
+  }
+
+  const maxw = $('#crop-maxwidth');
+  if (maxw) maxw.addEventListener('input', updateCropInfo);
+
+  const closeBtn = $('#cropper-close');
+  if (closeBtn) closeBtn.addEventListener('click', function () { closeCropper(true); });
+  const cancelBtn = $('#cropper-cancel');
+  if (cancelBtn) cancelBtn.addEventListener('click', function () { closeCropper(true); });
+  const resetBtn = $('#cropper-reset');
+  if (resetBtn) resetBtn.addEventListener('click', function () { resetCropBox(); updateCropInfo(); });
+  const applyBtn = $('#cropper-apply');
+  if (applyBtn) applyBtn.addEventListener('click', function () { applyCrop(true); });
+  const skipBtn = $('#cropper-skip');
+  if (skipBtn) skipBtn.addEventListener('click', function () { applyCrop(true); });
+  const batchBtn = $('#run-batch');
+  if (batchBtn) batchBtn.addEventListener('click', runBatchOptimize);
+
+  window.addEventListener('resize', function () {
+    const modal = $('#cropper-modal');
+    if (modal && modal.classList.contains('open')) {
+      drawCropper();
+      paintBox();
+    }
+  });
+
+  bindCropDrag();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initCropper);
+} else {
+  initCropper();
+}
+
+/* ===== Smart upload: compliant images upload directly, others must be edited ===== */
+/* Replaces uploadFiles / uploadSingle so the whole app shares one gatekeeper. */
+
+const uploadGate = { queue: [], resolve: null, pending: [] };
+
+/** Is this file already acceptable for the chosen purpose? */
+async function checkCompliance(file, purpose) {
+  const rule = dimensionRules[purpose] || dimensionRules.product;
+  const dim = await readImageSize(file);
+  const issues = [];
+  if (!dim.width || !dim.height) {
+    issues.push('无法读取图片尺寸，文件可能损坏');
+    return { ok: false, issues, dim, rule };
+  }
+  const ratio = dim.width / dim.height;
+  const kb = file.size / 1024;
+
+  if (dim.width < rule.minW || dim.height < rule.minH) {
+    issues.push('分辨率 ' + dim.width + '×' + dim.height + ' 低于建议 ' + rule.minW + '×' + rule.minH);
+  }
+  if (ratio < rule.range[0] || ratio > rule.range[1]) {
+    issues.push('比例 ' + ratio.toFixed(2) + ':1 不在推荐区间 ' + rule.range[0] + '–' + rule.range[1]);
+  }
+  if (kb > rule.maxKB) {
+    issues.push('文件 ' + Math.round(kb) + ' KB 超过建议上限 ' + rule.maxKB + ' KB');
+  }
+  URL.revokeObjectURL(dim.url);
+  return { ok: issues.length === 0, issues, dim, rule };
+}
+
+/** Ask the user how to handle a non-compliant batch. */
+function askEditDecision(badItems, purpose) {
+  return new Promise(resolve => {
+    const list = badItems.slice(0, 6).map(x =>
+      '· ' + x.file.name + '\n    ' + x.issues.join('；')
+    ).join('\n');
+    const more = badItems.length > 6 ? '\n…另有 ' + (badItems.length - 6) + ' 张' : '';
+    const msg = '以下 ' + badItems.length + ' 张图片不符合「' +
+      (dimensionRules[purpose] || {}).title + '」的推荐规格：\n\n' + list + more +
+      '\n\n点「确定」进入编辑（裁剪/压缩后再上传）\n点「取消」放弃这批图片';
+    resolve(confirm(msg));
+  });
+}
+
+/**
+ * Main entry. Opens a file picker, checks each file, and:
+ *   - compliant  -> upload immediately
+ *   - non-compliant -> force the crop/compress editor before saving
+ * Resolves with an array of uploaded relative paths (may be empty).
+ */
+async function uploadWithGate(purposeOverride) {
+  const purpose = purposeOverride || currentPurpose();
+
+  const files = await new Promise(resolve => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.multiple = true;
+    input.onchange = () => resolve(Array.prototype.slice.call(input.files || []));
+    input.click();
+  });
+  if (!files.length) return [];
+
+  const results = await Promise.all(files.map(f => checkCompliance(f, purpose)));
+  const good = [];
+  const bad = [];
+  results.forEach((r, i) => { const entry = { file: files[i], issues: r.issues, dim: r.dim, rule: r.rule }; (r.ok ? good : bad).push(entry); });
+
+  const savedPaths = [];
+
+  // 1) compliant files go straight in
+  for (const item of good) {
+    try {
+      const fd = new FormData();
+      fd.append('file', item.file);
+      const res = await api('/api/upload', { method: 'POST', body: fd });
+      savedPaths.push(res.path);
+    } catch (e) {
+      toast('上传失败：' + e.message, 4000);
+    }
+  }
+  if (good.length) {
+    toast('已直接上传 ' + good.length + ' 张（符合规格）', 3500);
+  }
+
+  // 2) non-compliant files MUST go through the editor
+  if (bad.length) {
+    const caps = cropper.caps || await (async () => { await loadCapabilities(); return cropper.caps; })();
+    if (caps && caps.pillow === false) {
+      toast('有 ' + bad.length + ' 张图片不符合规格，但未安装 Pillow 无法编辑。请运行 pip install Pillow', 7000);
+      await loadMedia();
+      return savedPaths;
+    }
+    const go = await askEditDecision(bad, purpose);
+    if (!go) {
+      toast('已跳过 ' + bad.length + ' 张不符合规格的图片', 4000);
+      await loadMedia();
+      return savedPaths;
+    }
+    // queue them through the cropper one at a time
+    for (const item of bad) {
+      const saved = await runCropperFlow(item.file, purpose, item.issues);
+      if (saved) savedPaths.push(saved);
+    }
+  }
+
+  await loadMedia();
+  return savedPaths;
+}
+
+/** Open the cropper for a single file and resolve with the saved path (or null). */
+function runCropperFlow(file, purpose, issues) {
+  return new Promise(resolve => {
+    openCropper(file, {
+      purpose: purpose,
+      reason: issues,
+      onSaved: function (path) { resolve(path); },
+      onCancel: function () { resolve(null); }
+    });
+  });
+}
+
+/* ---- override the originals so every upload button uses the gate ---- */
+async function uploadFiles(files) {
+  // called by the media page multi-select; route through the same logic
+  if (!files || !files.length) return;
+  const purpose = currentPurpose();
+  const results = await Promise.all(files.map(f => checkCompliance(f, purpose)));
+  const good = [];
+  const bad = [];
+  results.forEach((r, i) => { (r.ok ? good : bad).push({ file: files[i] }); });
+
+  for (const item of good) {
+    const fd = new FormData();
+    fd.append('file', item.file);
+    await api('/api/upload', { method: 'POST', body: fd });
+  }
+  if (good.length) toast('已直接上传 ' + good.length + ' 张（符合规格）', 3500);
+
+  if (bad.length) {
+    const go = await askEditDecision(bad, purpose);
+    if (go) {
+      for (const item of bad) {
+        await runCropperFlow(item.file, purpose, []);
+      }
+    } else {
+      toast('已跳过 ' + bad.length + ' 张', 3500);
+    }
+  }
+  await loadMedia();
+}
+
+async function uploadSingle(useOverride) {
+  const paths = await uploadWithGate(useOverride || currentPurpose());
+  return paths.length ? paths[0] : null;
+}
